@@ -131,15 +131,15 @@
 		}, {
 			id: "MaintEnd",
 			alias: "Maintenance End",
-			dataType: tableau.dataTypeEnum.date
+			dataType: tableau.dataTypeEnum.string
 		}, {
 			id: "LastInstalled",
 			alias: "Last Installed",
-			dataType: tableau.dataTypeEnum.date
+			dataType: tableau.dataTypeEnum.string
 		}, {
 			id: "LicenseSoldOnDate",
 			alias: "License Sold On",
-			dataType: tableau.dataTypeEnum.date
+			dataType: tableau.dataTypeEnum.string
 		}, {
 			id: "AccountName",
 			alias: "Account Name",
@@ -185,14 +185,14 @@
 				record.Department = resp["Department"];
 				record.CustomerNotes = resp["Customer Notes"];
 				record.CustomerID = resp["Customer ID"];
-				var m = new Date(resp["Maint End"]);
-				var MaintEnd = m.getUTCFullYear() +"/"+ ("0" + (m.getUTCMonth()+1)).slice(-2) +"/"+ ("0" + m.getUTCDate()).slice(-2);
+				var me = new Date(resp["Maint End"]);
+				var MaintEnd = me.getUTCFullYear() +"/"+ ("0" + (me.getUTCMonth()+1)).slice(-2) +"/"+ ("0" + me.getUTCDate()).slice(-2);
 				record.MaintEnd = MaintEnd;
-				var m = new Date(resp["Last Installed"]);
-				var LastInstalled = m.getUTCFullYear() +"/"+ ("0" + (m.getUTCMonth()+1)).slice(-2) +"/"+ ("0" + m.getUTCDate()).slice(-2);
+				var li = new Date(resp["Last Installed"]);
+				var LastInstalled = li.getUTCFullYear() +"/"+ ("0" + (li.getUTCMonth()+1)).slice(-2) +"/"+ ("0" + li.getUTCDate()).slice(-2);
 				record.LastInstalled = LastInstalled;
-				var m = new Date(resp["License Sold On Date"]);
-				var LicenseSoldOnDate = m.getUTCFullYear() +"/"+ ("0" + (m.getUTCMonth()+1)).slice(-2) +"/"+ ("0" + m.getUTCDate()).slice(-2);
+				var lsod = new Date(resp["License Sold On Date"]);
+				var LicenseSoldOnDate = lsod.getUTCFullYear() +"/"+ ("0" + (lsod.getUTCMonth()+1)).slice(-2) +"/"+ ("0" + lsod.getUTCDate()).slice(-2);
 				record.LicenseSoldOnDate = LicenseSoldOnDate;
 				record.AccountName = resp["Portal Account: Account Name"];
 				data.push(record);
@@ -251,7 +251,7 @@
 					<li>
 						<a href="quandl.html"><i class="icon-quandl" style="font-size:22px"></i>Quandl</a>
 					</li>
-					<li class="active">
+					<li>
 						<a href="sharepoint.html"><i class="icon-sharepoint" style="font-size:22px"></i>SharePoint</a>
 					</li>
 					<li class="label">Online Storage</li>
@@ -290,15 +290,17 @@
 <div class="section noTableau">
 		<div class="tableauContainer ">
 			 <h4 class="section-heading centre">Tableau Portal Keys Download Web Data Connector for Tableau</h4>
-			 <p class="centre"> <img src="images/tableauPortal.png" alt="tableau portal" style="width:450px;height:100px;"> </p>
+			 <p class="centre"> <img src="images/tableaukeys.png" alt="tableau portal" style="width:450px;height:100px;"> </p>
 			 <p class="section-description centre">Please open this web data connector in Tableau version 10.1 or greater.<br/><a href="http://www.tableausoftware.com/partner-trial?id=19124">Click here to download a trial</a></p>
 			 <p class="section-logo centre"><a href="http://www.theinformationlab.co.uk"><img src="images/logo.png" alt="The Information Lab" style="width:188px;height:75px;"></a></p>
 		</div>
 </div>
  <div class="section welcome">
  		 <div class="tableauContainer ">
- 				<h4 class="section-heading centre">Tableau Portal Keys Download Web Data Connector for Tableau</h4>
- 				<p class="centre"> <img src="images/sharepoint.png" alt="tableau portal" style="width:450px;height:100px;"> </p>
+ 				<h4 class="section-heading centre">Tableau Portal Keys Download WDC for Tableau</h4>
+ 				<p class="centre"> <img src="images/tableaukeys.png" alt="tableau portal" style="width:450px;height:100px;"> </p>
+				<p class="centre">So you want to download your Tableau Customer/Partner Portal keys directly into Tableau? You're in the right place! Data includes useful fields such as assigned user's email address and maintenance end date. To get started just enter your Tableau Portal login details and hit the login button. The schema will load in a few seconds, data download will take about a minute. Enjoy!</p>
+				<br/>
 				<div class="credentials centre">
 				<div class="group">
 					<input class="inputMaterial" type="text"  id="username" placeholder='me@acme.com' tabindex="1">
