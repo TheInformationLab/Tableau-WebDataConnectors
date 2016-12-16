@@ -1,9 +1,0 @@
-{
-    "type": "sftp",
-    "host": "109.123.99.26",
-    "username": "craig",
-    "password": "NCj~mTg9faBnb&!~^#f:2Qe/K/qP4dW+T53",
-    "port": 22,
-    "remotePath": "/var/www/wdc.theinformationlab.co.uk/public_html",
-    "uploadOnSave": true
-}
