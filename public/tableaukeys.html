@@ -81,39 +81,39 @@
 
 	myConnector.getSchema = function(schemaCallback) {
 		var key_cols = [{
-			id: "Keys Key Name",
+			id: "KeyName",
 			alias: "Key",
 			dataType: tableau.dataTypeEnum.string
 		}, {
-			id: "Product Name",
+			id: "ProductName",
 			alias: "Product Name",
 			dataType: tableau.dataTypeEnum.string
 		}, {
-			id: "Product Version",
+			id: "ProductVersion",
 			alias: "Product Version",
 			dataType: tableau.dataTypeEnum.string
 		}, {
-			id: "Interactor Count",
+			id: "InteractorCount",
 			alias: "Interactor Count",
 			dataType: tableau.dataTypeEnum.int
 		}, {
-			id: "User Name",
+			id: "UserName",
 			alias: "User Name",
 			dataType: tableau.dataTypeEnum.string
 		}, {
-			id: "Assigned Email",
+			id: "AssignedEmail",
 			alias: "Assigned Email",
 			dataType: tableau.dataTypeEnum.string
 		}, {
-			id: "Last Registered User Name",
+			id: "LastRegisteredUserName",
 			alias: "Last Registered User Name",
 			dataType: tableau.dataTypeEnum.string
 		}, {
-			id: "Registered Email",
+			id: "RegisteredEmail",
 			alias: "Registered Email",
 			dataType: tableau.dataTypeEnum.string
 		}, {
-			id: "Keys Owner Name",
+			id: "OwnerName",
 			alias: "Owner Name",
 			dataType: tableau.dataTypeEnum.string
 		}, {
@@ -121,27 +121,27 @@
 			alias: "Department",
 			dataType: tableau.dataTypeEnum.string
 		}, {
-			id: "Customer Notes",
+			id: "CustomerNotes",
 			alias: "Customer Notes",
 			dataType: tableau.dataTypeEnum.string
 		}, {
-			id: "Customer ID",
+			id: "CustomerID",
 			alias: "Customer ID",
 			dataType: tableau.dataTypeEnum.string
 		}, {
-			id: "Maint End",
+			id: "MaintEnd",
 			alias: "Maintenance End",
 			dataType: tableau.dataTypeEnum.date
 		}, {
-			id: "Last Installed",
+			id: "LastInstalled",
 			alias: "Last Installed",
 			dataType: tableau.dataTypeEnum.date
 		}, {
-			id: "License Sold On Date",
+			id: "LicenseSoldOnDate",
 			alias: "License Sold On",
 			dataType: tableau.dataTypeEnum.date
 		}, {
-			id: "Portal Account Account Name",
+			id: "AccountName",
 			alias: "Account Name",
 			dataType: tableau.dataTypeEnum.string
 		}];
@@ -169,13 +169,29 @@
 		}
 
 		$.ajax(settings).done(function (response) {
-			response["Keys Key Name"] = response["Keys: Key Name"];
-			delete response["Keys: Key Name"];
-			response["Keys Owner Name"] = response["Keys: Owner Name"];
-			delete response["Keys: Owner Name"];
-			response["Portal Account Account Name"] = response["Portal Account: Account Name"];
-			delete response["Portal Account: Account Name"];
-			table.appendRows(response);
+			var data = [];
+			for (i=0; i < response.length; i++) {
+				var resp = response[i];
+				var record = {};
+				record.KeyName = resp["Keys: Key Name"];
+				record.ProductName = resp["Product Name"];
+				record.ProductVersion = resp["Product Version"]
+				record.InteractorCount = resp["Interactor Count"];
+				record.UserName = resp["User Name"];
+				record.AssignedEmail = resp["Assigned Email"];
+				record.LastRegisteredUserName = resp["Last Registered User Name"];
+				record.RegisteredEmail = resp["Registered Email"];
+				record.OwnerName = resp["Keys: Owner Name"];
+				record.Department = resp["Department"];
+				record.CustomerNotes = resp["Customer Notes"];
+				record.CustomerID = resp["Customer ID"];
+				record.MaintEnd = resp["Maint End"];
+				record.LastInstalled = resp["Last Installed"];
+				record.LicenseSoldOnDate = resp["License Sold On Date"];
+				record.AccountName = resp["Portal Account: Account Name"];
+				data.push(record);
+			}
+			table.appendRows(data);
 			doneCallback();
 		});
 
