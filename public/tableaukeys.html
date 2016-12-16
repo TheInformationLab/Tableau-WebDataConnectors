@@ -185,9 +185,15 @@
 				record.Department = resp["Department"];
 				record.CustomerNotes = resp["Customer Notes"];
 				record.CustomerID = resp["Customer ID"];
-				record.MaintEnd = resp["Maint End"];
-				record.LastInstalled = resp["Last Installed"];
-				record.LicenseSoldOnDate = resp["License Sold On Date"];
+				var m = new Date(resp["Maint End"]);
+				var MaintEnd = m.getUTCFullYear() +"/"+ ("0" + (m.getUTCMonth()+1)).slice(-2) +"/"+ ("0" + m.getUTCDate()).slice(-2);
+				record.MaintEnd = MaintEnd;
+				var m = new Date(resp["Last Installed"]);
+				var LastInstalled = m.getUTCFullYear() +"/"+ ("0" + (m.getUTCMonth()+1)).slice(-2) +"/"+ ("0" + m.getUTCDate()).slice(-2);
+				record.LastInstalled = LastInstalled;
+				var m = new Date(resp["License Sold On Date"]);
+				var LicenseSoldOnDate = m.getUTCFullYear() +"/"+ ("0" + (m.getUTCMonth()+1)).slice(-2) +"/"+ ("0" + m.getUTCDate()).slice(-2);
+				record.LicenseSoldOnDate = LicenseSoldOnDate;
 				record.AccountName = resp["Portal Account: Account Name"];
 				data.push(record);
 			}
