@@ -70,7 +70,7 @@
 				$('.noTableau').hide();
 				$('.welcome').show();
 				$('#login').bind('click', function(){
-					myConnector.setConnection($('#username'),$('#password'));
+					myConnector.setConnection($('#username').val(),$('#password').val());
 				});
 			} else {
 				tableau.submit();
@@ -145,7 +145,14 @@
 			alias: "Account Name",
 			dataType: tableau.dataTypeEnum.string
 		}];
-		schemaCallback(key_cols)
+
+		var keysTable = {
+			id:"tableauKeys",
+			alias: "Tableau Portal Keys",
+			columns: key_cols
+		}
+
+		schemaCallback([keysTable]);
 	};
 
 	myConnector.getData = function(table, doneCallback) {
