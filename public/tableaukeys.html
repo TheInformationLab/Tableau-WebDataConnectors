@@ -81,7 +81,7 @@
 
 	myConnector.getSchema = function(schemaCallback) {
 		var key_cols = [{
-			id: "Keys: Key Name",
+			id: "Keys Key Name",
 			alias: "Key",
 			dataType: tableau.dataTypeEnum.string
 		}, {
@@ -113,7 +113,7 @@
 			alias: "Registered Email",
 			dataType: tableau.dataTypeEnum.string
 		}, {
-			id: "Keys: Owner Name",
+			id: "Keys Owner Name",
 			alias: "Owner Name",
 			dataType: tableau.dataTypeEnum.string
 		}, {
@@ -141,7 +141,7 @@
 			alias: "License Sold On",
 			dataType: tableau.dataTypeEnum.date
 		}, {
-			id: "Portal Account: Account Name",
+			id: "Portal Account Account Name",
 			alias: "Account Name",
 			dataType: tableau.dataTypeEnum.string
 		}];
@@ -169,6 +169,12 @@
 		}
 
 		$.ajax(settings).done(function (response) {
+			response["Keys Key Name"] = response["Keys: Key Name"];
+			delete response["Keys: Key Name"];
+			response["Keys Owner Name"] = response["Keys: Owner Name"];
+			delete response["Keys: Owner Name"];
+			response["Portal Account Account Name"] = response["Portal Account: Account Name"];
+			delete response["Portal Account: Account Name"];
 			table.appendRows(response);
 			doneCallback();
 		});
