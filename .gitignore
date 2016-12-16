@@ -1,0 +1,5 @@
+/app.js
+/package.json
+/phantomScript.js
+/node_modules/*
+/public/*.php

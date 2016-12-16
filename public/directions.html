@@ -1,0 +1,427 @@
+<html>
+<meta http-equiv="Cache-Control" content="no-store" />
+<head>
+	<meta charset="utf-8">
+	<title>Mapbox Directions Web Data Connector for Tableau by The Information Lab</title>
+	<meta name="application-name" content="Mapbox Directions Web Data Connector for Tableau by The Information Lab">
+	<meta name="author" content="The Information Lab">
+	<meta name="description" content="Mapbox Directions Web Data Connector for Tableau by The Information Lab">
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+	<link href='http://fonts.googleapis.com/css?family=Raleway:400,300,600' rel='stylesheet' type='text/css'>
+	<link rel="stylesheet" href="css/normalize.css">
+	<link rel="stylesheet" href="css/skeleton.css">
+	<link href="css/bootstrap.min.css" rel="stylesheet">
+	<link href="css/font-awesome.min.css" rel="stylesheet">
+	<link href="css/yay.min.css" rel="stylesheet">
+	<link href="css/fontcustom.css" rel="stylesheet">
+		<link rel="stylesheet" href="css/connector.css">
+		<link rel="stylesheet" href="css/mapbox-main.css">
+	<!-- HTML5 shim IE8 support for HTML5 elements -->
+	<!--[if lt IE 9]>
+		<script src="js/html5shiv.min.js"></script>
+	<![endif]-->
+
+<script src="js/jquery-1.11.1.min.js" type="text/javascript"></script>
+<script src="https://public.tableau.com/javascripts/api/tableauwdc-1.1.0.js" type="text/javascript"></script>
+<script>
+	(function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+	(i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+	m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+	})(window,document,'script','https://www.google-analytics.com/analytics.js','ga');
+
+	ga('create', 'UA-27427363-6', 'auto');
+	ga('send', 'pageview');
+
+</script>
+
+<script type="text/javascript">
+
+var myConnector = tableau.makeConnector();
+var pageNumber = 0;
+var rowNumber = 0;
+
+myConnector.init = function() {
+	$('.notableau').hide();
+	$('.welcome').show();
+	tableau.initCallback();
+}
+
+myConnector.getColumnHeaders = function() {
+	var fieldNames = ["Method","Origin","Destination","Alternative_Route_Summary","Distance_meters","Duration_sec","Path","Longitude","Latitude"];
+	var fieldTypes = ["string","string","string","string","string","string","int","float","float"];
+	tableau.headersCallback(fieldNames, fieldTypes); // tell tableau about the fields and their types
+};
+
+myConnector.getTableData = function(dataSize) {
+	var routes = JSON.parse(tableau.connectionData);
+	var r = pageNumber;
+	var originLatLon = routes[r].originCoord;
+	var destinationLatLon = routes[r].destinationCoord;
+	var originName = routes[r].originName;
+	var destinationName = routes[r].destinationName;
+	var navMethod = routes[r].navMethod;
+	var connectionURL = "https://api.tiles.mapbox.com/v4/directions/mapbox."+navMethod+"/"+originLatLon+";"+destinationLatLon+".json?access_token=pk.eyJ1IjoiaW5mb2xhYnVrLWRldiIsImEiOiJlNmU0ZTEyNWZhZWUzNzllYWY1M2M5MGQ1M2RhYWRjNCJ9.eywwQVUxaUg_gDY-RM5OaQ";
+	var xhr = $.ajax({
+	  url: connectionURL,
+	  dataType: 'json',
+	  success: function (data) {
+		  var toRet = [];
+		  var routeAlts = data.routes;
+		  for (var i = 0; i < routeAlts.length; ++i) {
+			var route = routeAlts[i];
+			var coordinates = route.geometry.coordinates;
+			for (var j = 0; j < coordinates.length; j++) {
+				var entry = {};
+				entry.Method = navMethod;
+				entry.Origin = originName;
+				entry.Destination = destinationName;
+				entry.Alternative_Route_Summary = route.summary;
+				entry.Distance_meters = route.distance;
+				entry.Duration_sec = route.duration;
+				entry.Path = j;
+				entry.Longitude = coordinates[j][0];
+				entry.Latitude = coordinates[j][1];
+				toRet.push(entry);
+				++dataSize;
+			}
+		  }
+
+		  var moreDate = r < routes.length-1;
+		  pageNumber = pageNumber + 1;
+		  tableau.dataCallback(toRet, dataSize.toString(), moreDate);
+	   },
+	  error: function (xhr, ajaxOptions, thrownError) {
+		  // add something to the log and return an empty set if there was problem with the connection
+		  //console.log("connection error: " + xhr.responseText + "\n" + thrownError);
+		  tableau.log("connection error: " + xhr.responseText + "\n" + thrownError);
+		  tableau.abortWithError("error connecting to the mapbox api");
+		}
+	});
+};
+
+myConnector.setConnection = function(routes) {
+	tableau.connectionData = JSON.stringify(routes);
+	tableau.connectionName = 'Mapbox Directions'; // name the data source. This will be the data source name in Tableau
+};
+
+tableau.registerConnector(myConnector);
+
+function searchLocations(method,origin,destination){
+	var originUrl = "http://api.tiles.mapbox.com/v4/geocode/mapbox.places/"+origin.replace(/\s/g, "+")+".json?access_token=pk.eyJ1IjoiaW5mb2xhYnVrLWRldiIsImEiOiJlNmU0ZTEyNWZhZWUzNzllYWY1M2M5MGQ1M2RhYWRjNCJ9.eywwQVUxaUg_gDY-RM5OaQ";
+	var originxhr = $.ajax({
+      url: originUrl,
+      dataType: 'json',
+      success: function (data) {
+				  var locations = data["features"];
+				  var rowDiv = document.createElement("div");
+				  rowNumber = rowNumber + 1;
+				  rowDiv.setAttribute('id','row'+rowNumber.toString());
+					rowDiv.setAttribute('class','section-description centre dataRow');
+				  var routeForm = document.getElementsByClassName('routeForm');
+				  routeForm[0].appendChild(rowDiv);
+				  var navMethod = document.createElement("div");
+				  navMethod.setAttribute('id','navMethodLabel');
+				  switch (method) {
+				  	case "driving":
+				  		navMethod.innerHTML = "Driving";
+				  		break;
+				  	case "walking":
+				  		navMethod.innerHTML = "Walking";
+				  		break;
+				  	case "cycling":
+				  		navMethod.innerHTML = "Cycling";
+				  		break;
+				  }
+				  rowDiv.appendChild(navMethod);
+				  var originSelect = document.createElement("SELECT");
+				  originSelect.setAttribute('id','origin');
+				  for (i = 0; i < locations.length; ++i){
+				  	//console.log(locations[i].place_name);
+					  var originOpt = document.createElement("option");
+					  originOpt.text = locations[i].place_name;
+					  var originLonLat = locations[i].center[0].toString() + "," + locations[i].center[1].toString();
+					  originOpt.value = originLonLat;
+					  originSelect.add(originOpt);
+				  }
+				  rowDiv.appendChild(originSelect);
+
+				  var destinationUrl = "http://api.tiles.mapbox.com/v4/geocode/mapbox.places/"+destination.replace(/\s/g, "+")+".json?access_token=pk.eyJ1IjoiaW5mb2xhYnVrLWRldiIsImEiOiJlNmU0ZTEyNWZhZWUzNzllYWY1M2M5MGQ1M2RhYWRjNCJ9.eywwQVUxaUg_gDY-RM5OaQ";
+				  var destinationxhr = $.ajax({
+		     		 url: destinationUrl,
+		     		 dataType: 'json',
+		    		  success: function (data) {
+							 	var locations = data["features"];
+								var destinationSelect = document.createElement("SELECT");
+							  	destinationSelect.setAttribute('id','destination');
+						  		for (var i = 0; i < locations.length; ++i){
+						  			//console.log(locations[i].place_name);
+							  		var destinationOpt = document.createElement("option");
+							  		destinationOpt.text = locations[i].place_name;
+							  		var destinationLonLat = locations[i].center[0].toString() + "," + locations[i].center[1].toString();
+							  		destinationOpt.value = destinationLonLat;
+							  		destinationSelect.add(destinationOpt);
+						  		}
+						  		var rowDiv = document.getElementById('row'+rowNumber.toString());
+						  		rowDiv.appendChild(destinationSelect);
+						  		var deleteRow = document.createElement("input");
+						  		deleteRow.setAttribute('type','submit');
+						  		deleteRow.setAttribute('class','close');
+						  		deleteRow.setAttribute('id','removeRowButton');
+						  		deleteRow.setAttribute('value','Remove');
+						  		rowDiv.appendChild(deleteRow);
+						  		deleteRow.addEventListener('click', function(e) {
+						  			event.preventDefault();
+										$(this).parent().remove();
+										rowNumber = rowNumber - 1;
+										if (rowNumber == 0) {
+											$("#getDataButton").remove();
+										}
+						  		});
+						  		if (!document.getElementById('getDataButton')) {
+						  			var dataSubmit = document.createElement("a");
+										dataSubmit.setAttribute('class','button button-primary button-margin');
+										dataSubmit.setAttribute('id','getDataButton');
+										dataSubmit.innerHTML = 'Get Data';
+										var submitButton = document.getElementsByClassName('submitButton');
+										submitButton[0].appendChild(dataSubmit);
+										dataSubmit.addEventListener('click', function(e){
+							  				event.preventDefault();
+							  				var selectedMethods = $('div[id=navMethodLabel]');
+											var selectedOrigins = $('select[id=origin]');
+											var selectedDestinations = $('select[id=destination]');
+											var routes = [];
+											for (var j = 0; j < selectedOrigins.length; j++) {
+												var navMethod = selectedMethods[j].innerHTML.toLowerCase();
+												var originCoord = selectedOrigins[j].value;
+												var destinationCoord = selectedDestinations[j].value;
+												var originName = selectedOrigins[j].selectedOptions[0].label;
+												var destinationName = selectedDestinations[j].selectedOptions[0].label;
+												var route = {};
+												route.navMethod = navMethod;
+												route.originCoord = originCoord;
+												route.originName = originName;
+												route.destinationCoord = destinationCoord;
+												route.destinationName = destinationName;
+												routes.push(route);
+											}
+											//console.log(routes);
+											myConnector.setConnection(routes);
+					        				tableau.submit();
+							  			});
+						  		}
+						  		$('.ajax-loading').hide();
+		      },
+			  error: function(XMLHttpRequest, textStatus, errorThrown) {
+			    $('.ajax-loading').hide();
+				var loadError = document.getElementById("codeError");
+				loadError.innerHTML = "Invalid Code<br/>";
+			  }
+		  });
+
+      },
+	  error: function(XMLHttpRequest, textStatus, errorThrown) {
+	    $('.ajax-loading').hide();
+		var loadError = document.getElementById("codeError");
+		loadError.innerHTML = "Invalid Code<br/>";
+	  }
+  });
+}
+
+$(document).ready(function() {
+	$('.notableau').show();
+	$('.welcome').hide();
+	var inputTable = document.createElement("table");
+	var tableRow = document.createElement("tr");
+	var methodCell = document.createElement("td");
+	var navMethod = document.createElement("SELECT");
+	navMethod.setAttribute('id','navMethod');
+	navMethod.setAttribute('name','navMethod');
+	var drivingOpt = document.createElement("option");
+	drivingOpt.text = "Driving";
+	drivingOpt.value = "driving";
+	navMethod.add(drivingOpt);
+	var walkingOpt = document.createElement("option");
+	walkingOpt.text = "Walking";
+	walkingOpt.value = "walking";
+	navMethod.add(walkingOpt);
+	var cyclingOpt = document.createElement("option");
+	cyclingOpt.text = "Cycling";
+	cyclingOpt.value = "cycling";
+	navMethod.add(cyclingOpt);
+	methodCell.appendChild(navMethod);
+	tableRow.appendChild(methodCell);
+	var fromCell = document.createElement('td');
+	var fromHighlightSpan = document.createElement("span");
+	fromHighlightSpan.setAttribute('class','highlight');
+	var fromBarSpan = document.createElement("span");
+	fromBarSpan.setAttribute('class','bar');
+	var toHighlightSpan = document.createElement("span");
+	toHighlightSpan.setAttribute('class','highlight');
+	var toBarSpan = document.createElement("span");
+	toBarSpan.setAttribute('class','bar');
+	var fromLbl = document.createElement('label');
+	fromLbl.innerHTML = "Origin";
+	var toLbl = document.createElement('label');
+	toLbl.innerHTML = "Destination";
+	var fromGroupDiv = document.createElement("div");
+	fromGroupDiv.setAttribute('class','group');
+	var driveFrom = document.createElement("input");
+	driveFrom.setAttribute('type','text');
+	driveFrom.setAttribute('class','inputMaterial');
+	driveFrom.setAttribute('name','origin');
+	driveFrom.setAttribute('id','originLocation');
+	fromGroupDiv.appendChild(driveFrom);
+	fromGroupDiv.appendChild(fromHighlightSpan);
+	fromGroupDiv.appendChild(fromBarSpan);
+	fromGroupDiv.appendChild(fromLbl);
+	fromCell.appendChild(fromGroupDiv);
+	tableRow.appendChild(fromCell);
+	var toCell = document.createElement('td');
+	var toGroupDiv = document.createElement("div");
+	toGroupDiv.setAttribute('class','group');
+	var driveTo = document.createElement("input");
+	driveTo.setAttribute('type','text');
+	driveTo.setAttribute('name','destination');
+	driveTo.setAttribute('class','inputMaterial');
+	driveTo.setAttribute('id','destinationLocation');
+	toGroupDiv.appendChild(driveTo);
+	toGroupDiv.appendChild(toHighlightSpan);
+	toGroupDiv.appendChild(toBarSpan);
+	toGroupDiv.appendChild(toLbl);
+	toCell.appendChild(toGroupDiv);
+	tableRow.appendChild(toCell);
+	inputTable.appendChild(tableRow);
+	var driveSubmit = document.createElement("a");
+	driveSubmit.setAttribute('class','button button-primary button-margin');
+	driveSubmit.innerHTML = 'Add Route';
+	var driveForm = document.getElementsByClassName('inputForm');
+	driveForm[0].appendChild(inputTable);
+	driveForm[0].appendChild(driveSubmit);
+	driveFrom.addEventListener('focusin', function(){
+			if (driveFrom.value=="Origin") {
+				driveFrom.value="";
+				driveFrom.setAttribute('style','');
+			}
+		}, false);
+	driveTo.addEventListener('focusin', function(){
+			if (driveTo.value=="Destination") {
+				driveTo.value="";
+				driveTo.setAttribute('style','');
+			}
+		}, false);
+	$(".button").click(function() {
+		var methodField = $('select[name=navMethod]');
+		var fromField = $('input[name=origin]');
+		if (!fromField || fromField.length == 0) {
+		  return;
+		}
+		var toField = $('input[name=destination]');
+		if (!toField || toField.length == 0) {
+		  return;
+		}
+		var method = methodField[0].value.trim();
+		var origin = fromField[0].value.trim();
+		var destination = toField[0].value.trim();
+		searchLocations(method,origin,destination);
+		$('.ajax-loading').show();
+	});
+});
+
+</script>
+</head>
+<body class="yay-hide">
+<div class="full-container">
+  <!-- Bootstrap top navbar -->
+  <nav class="navbar navbar-default navbar-fixed-top">
+    <div class="container-fluid">
+
+      <!-- Yay toggle button -->
+      <button class="btn btn-default navbar-btn yay-toggle" type="button"><i class="fa fa-bars"></i></button>
+
+      <a class="navbar-brand" href="#"></a>
+
+    </div><!-- /.container-fluid -->
+  </nav>
+  <!-- /Bootstrap top navbar -->
+
+	<div class="yaybar yay-shrink yay-hide-to-small yay-gestures yay-overlap-content yay-light">
+    <div class="nano">
+      <div class="nano-content">
+
+				<ul>
+					<li class="label">Blending Data</li>
+					<li>
+						<a href="alteryx.html"><i class="icon-alteryx" style="font-size:22px"></i>Alteryx Gallery</a>
+					</li>
+					<li>
+						<a href="parsehub.html"><i class="icon-parsehub" style="font-size:22px"></i>ParseHub</a>
+					</li>
+					<li>
+						<a href="pingdom.html"><i class="icon-pingdom" style="font-size:22px"></i>Pingdom</a>
+					</li>
+					<li>
+						<a href="quandl.html"><i class="icon-quandl" style="font-size:22px"></i>Quandl</a>
+					</li>
+					<li>
+						<a href="sharepoint.html"><i class="icon-sharepoint" style="font-size:22px"></i>SharePoint</a>
+					</li>
+					<li class="label">Online Storage</li>
+					<li>
+						<a href="onedrive.html"><i class="icon-onedrive" style="font-size:22px"></i>OneDrive</a>
+					</li>
+					<li class="label">Quantified Self</li>
+					<li>
+            <a href="fitbit.html"><i class="icon-fitbit" style="font-size:22px"></i>Fitbit</a>
+          </li>
+					<li>
+						<a href="strava.html"><i class="icon-strava" style="font-size:22px"></i>Strava</a>
+					</li>
+					<li>
+						<a href="runkeeper.html"><i class="icon-Runkeeper" style="font-size:22px"></i>Runkeeper</a>
+					</li>
+					<li>
+						<a href="moves.html"><i class="icon-Moves" style="font-size:22px"></i>Moves</a>
+					</li>
+					<li>
+						<a href="googlefit.html"><i class="icon-googlefit" style="font-size:22px"></i>Google Fit</a>
+					</li>
+					<li class="label">Geocoding</li>
+					<li class="active">
+						<a href="directions.html"><i class="icon-Mapbox" style="font-size:22px"></i>Mapbox Directions</a>
+					</li>
+					<li class="label">Created by The Information Lab</li>
+        </ul>
+
+      </div>
+    </div>
+  </div>
+  <!-- /Yay Sidebar -->
+<div class="content-wrap">
+<div class='ajax-loading' id='loadingDiv'> </div>
+<div class="section noTableau">
+		<div class="tableauContainer ">
+			 <h4 class="section-heading centre">Welcome to the Mapbox Directions Web Data Connector for Tableau</h4>
+			 <p class="centre"> <img src="images/mapbox.png" alt="mapbox directions" style="width:450px;height:100px;"> </p>
+			 <p class="section-description centre">Please open this web data connector in Tableau version 9.1 or greater.<br/><a href="http://www.tableausoftware.com/partner-trial?id=19124">Click here to download a trial</a></p>
+			 <p class="section-logo centre"><a href="http://www.theinformationlab.co.uk"><img src="images/logo.png" alt="The Information Lab" style="width:188px;height:75px;"></a></p>
+		</div>
+</div>
+ <div class="section welcome">
+ 		 <div class="tableauContainer ">
+ 				<h4 class="section-heading centre">Welcome to the Mapbox Directions Web Data Connector for Tableau</h4>
+ 				<p class="centre"> <img src="images/mapbox.png" alt="mapbox directions" style="width:450px;height:100px;"> </p>
+				<p class="section-description centre"><i>We are aware of an arrangement issue with this connector, some elements may not display properly</i></p>
+				<div class="section-description centre inputForm"></div>
+				<div class="routeForm"></div>
+				<div class="section-description centre submitButton"></div>
+ 				<p class="section-logo centre"><a href="http://www.theinformationlab.co.uk"><img src="images/logo.png" alt="The Information Lab" style="width:188px;height:75px;"></a></p>
+ 		 </div>
+ </div>
+ </div>
+</div>
+<script src="js/bootstrap.min.js"></script>
+<script src="js/jquery.nanoscroller.min.js"></script>
+<script src="js/yay.min.js"></script>
+
+</body>
+</html>

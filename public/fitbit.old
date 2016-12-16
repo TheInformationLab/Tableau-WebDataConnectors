@@ -1,0 +1,518 @@
+<html>
+<meta http-equiv="Cache-Control" content="no-store" />
+<head>
+<!-- Comment the follwing line in and the line after out if you are not connected to the internet -->
+<!-- <script src="js/jquery-1.11.1.min.js" type="text/javascript"></script> -->
+<title>Fitbit Web Data Connector for Tableau by The Information Lab</title>
+<style>
+body{
+	background-color: #FAFAFA;
+	font-family: 'Droid Sans', sans-serif;
+}
+
+h2{
+	color:#9B9797;
+	font-size: 18px;
+	font-family: sans-serif;
+	padding-left: 5px;
+	padding-top:17px;
+}
+select {
+	padding: 3px;
+	border-radius: 5px;
+}
+div.ajax-loading{
+	position: fixed;
+	top: 0;
+	left: 0;
+	height:100%;
+	width:100%;
+	z-index: 9999999;
+	/*background-image: url('../../images/loading-bgr.gif');*/
+	background-color: #e7e7e7;
+	opacity: 0.5;
+	display:none;
+}
+div.ajax-loading {
+	height:100%;
+	width:100%;
+	background-image: url('loading.gif');
+	background-position: center center;
+	background-repeat: no-repeat;
+	/*opacity: 1;
+	filter: alpha(opacity=100); /* ie */
+	/*-moz-opacity: 1; /* mozilla */
+}
+#codeError {
+	color: red;
+	font-size: 12px;
+}
+#loadingMsg {
+	position: absolute;
+	text-align: center;
+	width: 500px;
+	height: 50px;
+	top: 50%;
+	left: 50%;
+	margin-left: -250px;
+	margin-top: 30px;
+}
+
+.button {
+	padding: 5px;
+	margin-top: 5px;
+	width: 200px;
+	background-color: #E97D32;
+	font-size: 14px;
+	color: white;
+	border: 1px solid transparent;
+	border-radius: 4px;
+	text-align: center;
+	margin-left: 140px;
+}
+
+#codeDiv {
+	position: absolute;
+	left:50%;
+	width: 500px;
+	margin-left: -240px;
+	margin-top: 30px;
+}
+
+#headerDiv {
+	position: absolute;
+	left:50%;
+	width: 350px;
+	margin-left: -90px;
+	margin-top: 30px;
+}
+
+#TILLogo{
+	position: absolute;
+	top: 5px;
+	right: 10px;
+	width: 125px;
+}
+
+#origin{
+	width: 200px;
+	height: 25px;
+	padding-left: 5px;
+	font-family: 'Droid Sans', sans-serif;
+	margin-bottom: 5px;
+	border: 1px solid #BDBDBD;
+}
+
+#originLocation, #destinationLocation{
+	width: 190px;
+	height: 25px;
+	padding-left: 5px;
+	margin-left: 10px;
+	font-family: 'Droid Sans', sans-serif;
+	margin-bottom: 5px;
+	border: 1px solid #BDBDBD;
+}
+
+#origin, #destination{
+	width: 190px;
+	height: 25px;
+	padding-left: 5px;
+	margin-left: 10px;
+	font-family: 'Droid Sans', sans-serif;
+	margin-bottom: 5px;
+	margin-top: 10px;
+	border: 1px solid #BDBDBD;
+}
+
+#quandlCode:hover{
+	border: 1px solid #000;
+}
+
+.close {
+	background: none;
+	color: #888888;
+	border: none;
+	padding: 0 10 0 10;
+}
+
+#navMethodLabel {
+	font-size: 12px;
+	display: inline;
+	margin-left: 10px;
+}
+
+</style>
+
+<script src="js/jquery-1.11.1.min.js" type="text/javascript"></script>
+<script src="js/tableauwdc-1.1.0.js" type="text/javascript"></script>
+
+<script type="text/javascript">
+
+var myConnector = tableau.makeConnector();
+
+myConnector.setConnection = function(access_token,refresh_token,user_id) {
+	var connData = [access_token,refresh_token,user_id];
+	tableau.connectionData = JSON.stringify(connData);
+	tableau.connectionName = 'Fitbit Activity'; // name the data source. This will be the data source name in Tableau
+};
+
+myConnector.getColumnHeaders = function() {
+	var fieldNames = ["ActivityDate","Steps","Distance","Floors","Calories","Elevation","minutesSedentary","minutesLightlyActive","minutesFairlyActive","minutesVeryActive","BMI","Fat","Weight"];
+	var fieldTypes = ["date","int","float","int","int","int","int","int","int","int","float","float","float"];
+	tableau.headersCallback(fieldNames, fieldTypes); // tell tableau about the fields and their types
+};
+
+myConnector.getTableData = function() {
+
+	var stepsArray = [];
+	var distanceArray = [];
+	var floorsArray = [];
+	var caloriesArray = [];
+	var elevationArray = [];
+	var minutesSedentaryArray = [];
+	var minutesLightlyActiveArray = [];
+	var minutesFairlyActiveArray = [];
+	var minutesVeryActiveArray = [];
+	var bmiArray = [];
+	var fatArray = [];
+	var weightArray = [];
+
+	var connectionAuth = JSON.parse(tableau.connectionData);
+	var access_token = connectionAuth[0];
+	var user_id = connectionAuth[2];
+
+	var MyRequestsCompleted = (function() {
+		var numRequestToComplete, requestsCompleted, callBacks, singleCallBack;
+
+		return function(options) {
+			if (!options) options = {};
+
+			numRequestToComplete = options.numRequest || 0;
+			requestsCompleted = options.requestsCompleted || 0;
+			callBacks = [];
+			var fireCallbacks = function() {
+				//alert("we're all complete");
+				for (var i = 0; i < callBacks.length; i++) callBacks[i]();
+			};
+			if (options.singleCallback) callBacks.push(options.singleCallback);
+
+			this.addCallbackToQueue = function(isComplete, callback) {
+				if (isComplete) requestsCompleted++;
+				if (callback) callBacks.push(callback);
+				if (requestsCompleted == numRequestToComplete) fireCallbacks();
+			};
+			this.requestComplete = function(isComplete) {
+				if (isComplete) requestsCompleted++;
+				if (requestsCompleted == numRequestToComplete) fireCallbacks();
+			};
+			this.setCallback = function(callback) {
+				callBacks.push(callBack);
+			};
+		};
+	})();
+  var baseURL = 'http://www.theinformationlab.co.uk/data/fitbit_callback.php';
+	var steps_request_data = {
+		url: baseURL + '?access_token='+access_token+'&req=activities&type=steps&userid='+user_id,
+		method: 'GET'
+	};
+	var distance_request_data = {
+		url: baseURL + '?access_token='+access_token+'&req=activities&type=distance&userid='+user_id,
+		method: 'GET'
+	};
+	var floors_request_data = {
+		url: baseURL + '?access_token='+access_token+'&req=activities&type=floors&userid='+user_id,
+		method: 'GET'
+	};
+	var calories_request_data = {
+		url: baseURL + '?access_token='+access_token+'&req=activities&type=calories&userid='+user_id,
+		method: 'GET'
+	};
+	var elevation_request_data = {
+		url: baseURL + '?access_token='+access_token+'&req=activities&type=elevation&userid='+user_id,
+		method: 'GET'
+	};
+	var minutesSedentary_request_data = {
+		url: baseURL + '?access_token='+access_token+'&req=activities&type=minutesSedentary&userid='+user_id,
+		method: 'GET'
+	};
+	var minutesLightlyActive_request_data = {
+		url: baseURL + '?access_token='+access_token+'&req=activities&type=minutesLightlyActive&userid='+user_id,
+		method: 'GET'
+	};
+	var minutesFairlyActive_request_data = {
+		url: baseURL + '?access_token='+access_token+'&req=activities&type=minutesFairlyActive&userid='+user_id,
+		method: 'GET'
+	};
+	var minutesVeryActive_request_data = {
+		url: baseURL + '?access_token='+access_token+'&req=activities&type=minutesVeryActive&userid='+user_id,
+		method: 'GET'
+	};
+	var bmi_request_data = {
+		url: baseURL + '?access_token='+access_token+'&req=body&type=bmi&userid='+user_id,
+		method: 'GET'
+	};
+	var fat_request_data = {
+		url: baseURL + '?access_token='+access_token+'&req=body&type=fat&userid='+user_id,
+		method: 'GET'
+	};
+	var weight_request_data = {
+		url: baseURL + '?access_token='+access_token+'&req=body&type=weight&userid='+user_id,
+		method: 'GET'
+	};
+
+
+
+	var requestCallback = new MyRequestsCompleted({
+		numRequest: 12,
+		singleCallback: function(){
+			var toRet = [];
+			for (var i = 0; i < stepsArray.length; i++) {
+				var entry = {};
+				entry.ActivityDate = stepsArray[i].ActivityDate;
+				entry.Steps = stepsArray[i].Steps;
+				entry.Distance = distanceArray[i].Distance;
+				entry.Floors = floorsArray[i].Floors;
+				entry.Calories = caloriesArray[i].Calories;
+				entry.Elevation = elevationArray[i].Elevation;
+				entry.minutesSedentary = minutesSedentaryArray[i].minutesSedentary;
+				entry.minutesLightlyActive = minutesLightlyActiveArray[i].minutesLightlyActive;
+				entry.minutesFairlyActive = minutesFairlyActiveArray[i].minutesFairlyActive;
+				entry.minutesVeryActive = minutesVeryActiveArray[i].minutesVeryActive;
+				entry.BMI = bmiArray[i].bmi;
+				entry.Fat = fatArray[i].fat;
+				entry.Weight = weightArray[i].weight;
+				toRet.push(entry);
+			}
+			tableau.dataCallback(toRet, toRet.length.toString(), false);
+		}
+	});
+
+	$.ajax({
+		url: steps_request_data.url,
+		type: steps_request_data.method,
+		dataType: 'json',
+		success: function(data) {
+			var activitiesSteps = data["activities-steps"];
+			for (var i = 0; i < activitiesSteps.length; i++) {
+				var entry = {};
+				entry.ActivityDate = activitiesSteps[i].dateTime;
+				entry.Steps = activitiesSteps[i].value;
+				stepsArray.push(entry);
+			}
+			requestCallback.requestComplete(true);
+		}
+	});
+	$.ajax({
+		url: distance_request_data.url,
+		type: distance_request_data.method,
+		dataType: 'json',
+		success: function(data) {
+			var activitiesDistance = data["activities-distance"];
+			for (var i = 0; i < activitiesDistance.length; i++) {
+				var entry = {};
+				entry.ActivityDate = activitiesDistance[i].dateTime;
+				entry.Distance = activitiesDistance[i].value;
+				distanceArray.push(entry);
+			}
+			requestCallback.requestComplete(true);
+		}
+	});
+	$.ajax({
+		url: floors_request_data.url,
+		type: floors_request_data.method,
+		dataType: 'json',
+		success: function(data) {
+			var activitiesFloors = data["activities-floors"];
+			for (var i = 0; i < activitiesFloors.length; i++) {
+				var entry = {};
+				entry.ActivityDate = activitiesFloors[i].dateTime;
+				entry.Floors = activitiesFloors[i].value;
+				floorsArray.push(entry);
+			}
+			requestCallback.requestComplete(true);
+		}
+	});
+	$.ajax({
+		url: calories_request_data.url,
+		type: calories_request_data.method,
+		dataType: 'json',
+		success: function(data) {
+			var activitiesCalories = data["activities-calories"];
+			for (var i = 0; i < activitiesCalories.length; i++) {
+				var entry = {};
+				entry.ActivityDate = activitiesCalories[i].dateTime;
+				entry.Calories = activitiesCalories[i].value;
+				caloriesArray.push(entry);
+			}
+			requestCallback.requestComplete(true);
+		}
+	});
+	$.ajax({
+		url: elevation_request_data.url,
+		type: elevation_request_data.method,
+		dataType: 'json',
+		success: function(data) {
+			var activitiesElevation = data["activities-elevation"];
+			for (var i = 0; i < activitiesElevation.length; i++) {
+				var entry = {};
+				entry.ActivityDate = activitiesElevation[i].dateTime;
+				entry.Elevation = activitiesElevation[i].value;
+				elevationArray.push(entry);
+			}
+			requestCallback.requestComplete(true);
+		}
+	});
+	$.ajax({
+		url: minutesSedentary_request_data.url,
+		type: minutesSedentary_request_data.method,
+		dataType: 'json',
+		success: function(data) {
+			var activitiesMinutesSedentary = data["activities-minutesSedentary"];
+			for (var i = 0; i < activitiesMinutesSedentary.length; i++) {
+				var entry = {};
+				entry.ActivityDate = activitiesMinutesSedentary[i].dateTime;
+				entry.minutesSedentary = activitiesMinutesSedentary[i].value;
+				minutesSedentaryArray.push(entry);
+			}
+			requestCallback.requestComplete(true);
+		}
+	});
+	$.ajax({
+		url: minutesLightlyActive_request_data.url,
+		type: minutesLightlyActive_request_data.method,
+		dataType: 'json',
+		success: function(data) {
+			var activitiesMinutesLightlyActive = data["activities-minutesLightlyActive"];
+			for (var i = 0; i < activitiesMinutesLightlyActive.length; i++) {
+				var entry = {};
+				entry.ActivityDate = activitiesMinutesLightlyActive[i].dateTime;
+				entry.minutesLightlyActive = activitiesMinutesLightlyActive[i].value;
+				minutesLightlyActiveArray.push(entry);
+			}
+			requestCallback.requestComplete(true);
+		}
+	});
+	$.ajax({
+		url: minutesFairlyActive_request_data.url,
+		type: minutesFairlyActive_request_data.method,
+		dataType: 'json',
+		success: function(data) {
+			var activitiesMinutesFairlyActive = data["activities-minutesFairlyActive"];
+			for (var i = 0; i < activitiesMinutesFairlyActive.length; i++) {
+				var entry = {};
+				entry.ActivityDate = activitiesMinutesFairlyActive[i].dateTime;
+				entry.minutesFairlyActive = activitiesMinutesFairlyActive[i].value;
+				minutesFairlyActiveArray.push(entry);
+			}
+			requestCallback.requestComplete(true);
+		}
+	});
+	$.ajax({
+		url: minutesVeryActive_request_data.url,
+		type: minutesVeryActive_request_data.method,
+		dataType: 'json',
+		success: function(data) {
+			var activitiesMinutesVeryActive = data["activities-minutesVeryActive"];
+			for (var i = 0; i < activitiesMinutesVeryActive.length; i++) {
+				var entry = {};
+				entry.ActivityDate = activitiesMinutesVeryActive[i].dateTime;
+				entry.minutesVeryActive = activitiesMinutesVeryActive[i].value;
+				minutesVeryActiveArray.push(entry);
+			}
+			requestCallback.requestComplete(true);
+		}
+	});
+	$.ajax({
+		url: bmi_request_data.url,
+		type: bmi_request_data.method,
+		dataType: 'json',
+		success: function(data) {
+			var bodyBmi = data["body-bmi"];
+			for (var i = 0; i < bodyBmi.length; i++) {
+				var entry = {};
+				entry.ActivityDate = bodyBmi[i].dateTime;
+				entry.bmi = bodyBmi[i].value;
+				bmiArray.push(entry);
+			}
+			requestCallback.requestComplete(true);
+		}
+	});
+	$.ajax({
+		url: fat_request_data.url,
+		type: fat_request_data.method,
+		dataType: 'json',
+		success: function(data) {
+			var bodyFat = data["body-fat"];
+			for (var i = 0; i < bodyFat.length; i++) {
+				var entry = {};
+				entry.ActivityDate = bodyFat[i].dateTime;
+				entry.fat = bodyFat[i].value;
+				fatArray.push(entry);
+			}
+			requestCallback.requestComplete(true);
+		}
+	});
+	$.ajax({
+		url: weight_request_data.url,
+		type: weight_request_data.method,
+		dataType: 'json',
+		success: function(data) {
+			var bodyWeight = data["body-weight"];
+			for (var i = 0; i < bodyWeight.length; i++) {
+				var entry = {};
+				entry.ActivityDate = bodyWeight[i].dateTime;
+				entry.weight = bodyWeight[i].value;
+				weightArray.push(entry);
+			}
+			requestCallback.requestComplete(true);
+		}
+	});
+
+};
+
+tableau.registerConnector(myConnector);
+
+function getQueryParams(qs) {
+    qs = qs.split("+").join(" ");
+
+    var params = {}, tokens,
+        re = /[?&]?([^=]+)=([^&]*)/g;
+
+    while (tokens = re.exec(qs)) {
+        params[decodeURIComponent(tokens[1])]
+            = decodeURIComponent(tokens[2]);
+    }
+
+    return params;
+}
+
+$(document).ready(function() {
+	$('.ajax-loading').show();
+	var curURL = window.location.href;
+	curURL = curURL.replace("#","?");
+	var query = getQueryParams(curURL);
+	if (tableau.connectionData) {
+		tableau.submit();
+	} else if (!query["access_token"]){
+		window.location.href = "https://www.fitbit.com/oauth2/authorize?response_type=token&client_id=229M2H&redirect_uri=http://www.theinformationlab.co.uk/data/fitbit.html&scope=activity%20nutrition%20heartrate%20location%20nutrition%20profile%20settings%20sleep%20social%20weight&expires_in=2592000";
+	} else {
+		myConnector.setConnection(query["access_token"],"",query["user_id"]);
+		tableau.submit();
+	}
+
+});
+
+</script>
+</head>
+<body>
+<div class='ajax-loading' id='loadingDiv'> </div>
+<h2>Fitbit Activity</h2>
+<img id='TILLogo' src="http://www.theinformationlab.co.uk/wp-content/uploads/2012/01/Info-Lab-Logo.png"/>
+<div id='codeDiv'>
+<div id='codeError'></div>
+<h3>Connecting you to Fitbit...</h3>
+ </div>
+
+</body>
+</html>
+

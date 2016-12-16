@@ -1,0 +1,314 @@
+<!DOCTYPE html>
+<html lang="en">
+	<meta http-equiv="Cache-Control" content="no-store" />
+	<head>
+	  <meta charset="utf-8">
+	  <title>Pingdom Web Data Connector for Tableau by The Information Lab</title>
+	  <meta name="application-name" content="Pingdom Web Data Connector for Tableau by The Information Lab">
+	  <meta name="author" content="The Information Lab">
+		<meta name="description" content="Pingdom Web Data Connector for Tableau by The Information Lab">
+	  <meta name="viewport" content="width=device-width, initial-scale=1">
+	  <link href='http://fonts.googleapis.com/css?family=Raleway:400,300,600' rel='stylesheet' type='text/css'>
+	  <link rel="stylesheet" href="css/normalize.css">
+	  <link rel="stylesheet" href="css/skeleton.css">
+
+		<link rel="stylesheet" href="css/connector.css">
+	  <link href="css/bootstrap.min.css" rel="stylesheet">
+	  <link href="css/font-awesome.min.css" rel="stylesheet">
+	  <link href="css/yay.min.css" rel="stylesheet">
+		<link href="css/fontcustom.css" rel="stylesheet">
+		<link href="css/jquery-ui.min.css" rel="stylesheet">
+		<script src="js/jquery-1.11.1.min.js" type="text/javascript"></script>
+		<link rel="stylesheet" href="css/pingdom-main.css">
+		<script>
+			(function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+			(i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+			m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+			})(window,document,'script','https://www.google-analytics.com/analytics.js','ga');
+
+			ga('create', 'UA-27427363-6', 'auto');
+			ga('send', 'pageview');
+
+		</script>
+	<script src="https://public.tableau.com/javascripts/api/tableauwdc-1.1.0.js" type="text/javascript"></script>
+
+	<script type="text/javascript">
+
+	var fetchLoop = 0;
+	var outputData = [];
+	var nextChecks = [];
+	var nextCheckNames = [];
+	var checksCount = 0;
+	var checksDone = 0;
+
+	var myConnector = tableau.makeConnector();
+
+	myConnector.init = function() {
+		console.log("Tableau Connection Init");
+			$('.noTableau').hide();
+			$('.welcome').show();
+			tableau.initCallback();
+	};
+
+	myConnector.getColumnHeaders = function() {
+		var fieldNames = ["CheckName","DateTime","ResponseTime","Status","StatusDescription","StatusDescriptionLong","ProbeID"];
+		var fieldTypes = ["string","datetime","int","string","string","string","string"];
+		tableau.headersCallback(fieldNames, fieldTypes);
+	};
+
+	myConnector.getTableData = function() {
+		if (fetchLoop == 0){
+			var checks = [];
+			var checkNames = [];
+			var connData = JSON.parse(tableau.connectionData);
+			for (var i = 0; i < connData.length; i++){
+				checks.push(connData[i].id);
+				checkNames.push(connData[i].name);
+			}
+		} else {
+			var checks = nextChecks;
+			var checkNames = nextCheckNames;
+			nextChecks = [];
+			nextCheckNames = [];
+		}
+		var auth = btoa(tableau.username+':'+tableau.password);
+		var unixTimestamp = Date.now();
+		unixTimestamp = Math.ceil(unixTimestamp / 1000);
+		var fromDate = unixTimestamp - (1*24*60*60);
+		console.log(tableau.connectionName);
+		if (tableau.connectionName == "Pingdom Checks 24hrs") {
+
+		} else if (tableau.connectionName == "Pingdom Checks 7 days") {
+			var fromDate = Math.floor(unixTimestamp - (7*24*60*60));
+		} else if (tableau.connectionName == "Pingdom Checks 30 days") {
+			var fromDate = Math.floor(unixTimestamp - (30*24*60*60));
+		}
+		console.log(checks.length);
+		if(checks.length > 0) {
+			checksCount = checks.length;
+			checksDone = 0;
+			for (var i = 0; i < checks.length; i++){
+				var settings = {
+					"url": "http://data.theinformationlab.co.uk/pingdom_callback.php?req=checkresults&check="+checks[i]+"&from="+fromDate+"&to="+unixTimestamp+"&offset="+fetchLoop+"&auth="+btoa(tableau.username+':'+tableau.password),
+					"method": "GET",
+					"indexValue":checks[i] + "-" + checkNames[i]
+				}
+				$.ajax(settings).done(function (response) {
+					var data = JSON.parse(response);
+					var results = data.results;
+					if (results.length > 0){
+						console.log(results.length);
+						for (var j = 0; j < results.length; j++) {
+							var date = new Date(results[j].time*1000);
+							var year = date.getFullYear();
+							var month = "0" + (date.getMonth() + 1);
+							var day = "0" + date.getDate();
+							var hours = "0" + date.getHours();
+							var minutes = "0" + date.getMinutes();
+							var seconds = "0" + date.getSeconds();
+							var formattedDateTime = year + "-" + month.substr(-2) + "-" + day.substr(-2) + " " + hours.substr(-2) + ':' + minutes.substr(-2) + ':' + seconds.substr(-2);
+							var entry = {};
+							var checkName = this.indexValue;
+							entry.CheckName = checkName.substring(checkName.indexOf('-')+1);
+							entry.DateTime = formattedDateTime;
+							entry.ResponseTime = results[j].responsetime;
+							entry.Status = results[j].status;
+							entry.StatusDescription = results[j].statusdesc;
+							entry.StatusDescriptionLong = results[j].statusdesclong;
+							entry.ProbeID = results[j].probeid;
+							outputData.push(entry);
+							//bring in check name to dataset
+							//bring in proble info
+						}
+					}
+					checksDone++;
+					if (results.length == 1000) {
+						var nextstring = this.indexValue
+						var nextName = nextstring.substring(nextstring.indexOf('-')+1);
+						console.log(nextName + " will be requested again");
+						var nextID = nextstring.replace("-"+nextName,"");
+						nextChecks.push(nextID);
+						nextCheckNames.push(nextName);
+						console.log(nextChecks);
+					}
+					if(checksDone == checksCount){
+							fetchLoop += 1000;
+							console.log(fetchLoop);
+							tableau.dataCallback(outputData, outputData.length.toString(), true);
+					}
+				});
+			}
+		} else {
+			tableau.dataCallback(outputData, outputData.length.toString(), false);
+		}
+	};
+
+	myConnector.setConnection = function(email, password, checks, timeRange){
+		tableau.username = email;
+		tableau.password = password;
+		tableau.connectionData = JSON.stringify(checks);
+		console.log(timeRange);
+		switch (timeRange) {
+			case "1":
+				tableau.connectionName = "Pingdom Checks 24hrs";
+				break;
+			case "7":
+				tableau.connectionName = "Pingdom Checks 7 days";
+				break;
+			case "30":
+				tableau.connectionName = "Pingdom Checks 30 days";
+				break;
+		}
+	}
+
+	tableau.registerConnector(myConnector);
+
+	$(document).ready(function() {
+			$('.welcome').hide();
+			$('#login').bind('click', function(){
+				var email = $('#email').val().trim();
+				var password = $('#password').val();
+				var settings = {
+		  		"url": "http://data.theinformationlab.co.uk/pingdom_callback.php?req=checks&auth="+btoa(email+':'+password),
+		  		"method": "GET"
+				}
+				$.ajax(settings).done(function (response) {
+					$('.instructions').html('<p>Time range? <select id="time"><option value="1">24 hrs</option><option value="7">7 days</option><option value="30">30 days</option></select></p>')
+				  $('.instructions').append('<p>Please deselect any checks you do not wish to download</p>');
+					$('.credentials').html("<table class='checkButtons'></table>");
+					var data = JSON.parse(response);
+					var checks = data.checks;
+					for (var i = 0; i < checks.length; i++){
+						html = "<tr><td class='header'>"+checks[i].name+"</td><td><input type='checkbox' id='"+checks[i].id+"' name='"+checks[i].name+"' checked></td></tr>";
+						$('.checkButtons').append(html);
+					}
+					$('.credentials').append("<a class='button button-primary button-margin' id='getData'>GET DATA!</a>");
+					$('#getData').bind('click', function(){
+						var timeRange = $('#time').val();
+						var getChecks = [];
+						$(":checkbox").each(function(){
+					    var $this = $(this);
+					    if($this.is(":checked")){
+									var entry = {};
+									entry.id = $this.attr("id");
+									entry.name = $this.attr("name");
+					        getChecks.push(entry);
+					    }
+						});
+						myConnector.setConnection(email, password, getChecks, timeRange);
+						tableau.submit();
+					});
+		    });
+			});
+		});
+	</script>
+</head>
+<body class="yay-hide">
+<div class="full-container">
+  <!-- Bootstrap top navbar -->
+  <nav class="navbar navbar-default navbar-fixed-top">
+    <div class="container-fluid">
+
+      <!-- Yay toggle button -->
+      <button class="btn btn-default navbar-btn yay-toggle" type="button"><i class="fa fa-bars"></i></button>
+
+      <a class="navbar-brand" href="#"></a>
+
+    </div><!-- /.container-fluid -->
+  </nav>
+  <!-- /Bootstrap top navbar -->
+
+	<div class="yaybar yay-shrink yay-hide-to-small yay-gestures yay-overlap-content yay-light">
+    <div class="nano">
+      <div class="nano-content">
+
+				<ul>
+					<li class="label">Blending Data</li>
+					<li>
+						<a href="alteryx.html"><i class="icon-alteryx" style="font-size:22px"></i>Alteryx Gallery</a>
+					</li>
+					<li>
+						<a href="parsehub.html"><i class="icon-parsehub" style="font-size:22px"></i>ParseHub</a>
+					</li>
+					<li class="active">
+						<a href="pingdom.html"><i class="icon-pingdom" style="font-size:22px"></i>Pingdom</a>
+					</li>
+					<li>
+						<a href="quandl.html"><i class="icon-quandl" style="font-size:22px"></i>Quandl</a>
+					</li>
+					<li>
+						<a href="sharepoint.html"><i class="icon-sharepoint" style="font-size:22px"></i>SharePoint</a>
+					</li>
+					<li class="label">Online Storage</li>
+					<li>
+						<a href="onedrive.html"><i class="icon-onedrive" style="font-size:22px"></i>OneDrive</a>
+					</li>
+					<li class="label">Quantified Self</li>
+					<li>
+            <a href="fitbit.html"><i class="icon-fitbit" style="font-size:22px"></i>Fitbit</a>
+          </li>
+					<li>
+						<a href="strava.html"><i class="icon-strava" style="font-size:22px"></i>Strava</a>
+					</li>
+					<li>
+						<a href="runkeeper.html"><i class="icon-Runkeeper" style="font-size:22px"></i>Runkeeper</a>
+					</li>
+					<li>
+						<a href="moves.html"><i class="icon-Moves" style="font-size:22px"></i>Moves</a>
+					</li>
+					<li>
+						<a href="googlefit.html"><i class="icon-googlefit" style="font-size:22px"></i>Google Fit</a>
+					</li>
+					<li class="label">Geocoding</li>
+					<li>
+						<a href="directions.html"><i class="icon-Mapbox" style="font-size:22px"></i>Mapbox Directions</a>
+					</li>
+					<li class="label">Created by The Information Lab</li>
+        </ul>
+
+      </div>
+    </div>
+  </div>
+  <!-- /Yay Sidebar -->
+<div class="content-wrap">
+<div class='ajax-loading' id='loadingDiv'> </div>
+<div class="section noTableau">
+		<div class="tableauContainer ">
+			 <h4 class="section-heading centre">Welcome to the Pingdom Web Data Connector for Tableau</h4>
+			 <p class="centre"> <img src="images/pingdom.png" alt="pingdom" style="width:450px;height:100px;"> </p>
+			 <p class="section-description centre">Please open this web data connector in Tableau version 9.1 or greater.<br/><a href="http://www.tableausoftware.com/partner-trial?id=19124">Click here to download a trial</a></p>
+			 <p class="section-logo centre"><a href="http://www.theinformationlab.co.uk"><img src="images/logo.png" alt="The Information Lab" style="width:188px;height:75px;"></a></p>
+		</div>
+</div>
+ <div class="section welcome">
+ 		 <div class="tableauContainer ">
+ 				<h4 class="section-heading centre">Welcome to the Pingdom Web Data Connector for Tableau</h4>
+ 				<p class="centre"> <img src="images/pingdom.png" alt="pingdom" style="width:450px;height:100px;"> </p>
+				<p class="section-description centre instructions">Enter your Pingdom credentials and away we go!</p>
+				<div class="credentials centre">
+				<div class="group">
+					<input class="inputMaterial" type="text"  id="email" value=''>
+					<span class="highlight"></span>
+					<span class="bar"></span>
+					<label>Email Address</label>
+				</div>
+				<div class="group">
+					<input class="inputMaterial" type="password"  id="password" value=''>
+					<span class="highlight"></span>
+					<span class="bar"></span>
+					<label>Password</label>
+				</div>
+				<p class="section-description centre"><a class='button button-primary button-margin' id='login'>Login!</a></p>
+
+			</div>
+ 		</div>
+ </div>
+</div>
+
+ <script src="js/bootstrap.min.js"></script>
+ <script src="js/jquery.nanoscroller.min.js"></script>
+ <script src="js/yay.min.js"></script>
+ <script src="js/jquery-ui.min.js"></script>
+
+</body>
+</html>

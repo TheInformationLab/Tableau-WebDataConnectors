@@ -1,0 +1,318 @@
+<!DOCTYPE html>
+<html lang="en">
+	<meta http-equiv="Cache-Control" content="no-store" />
+	<head>
+	  <meta charset="utf-8">
+	  <title>Runkeeper Web Data Connector for Tableau by The Information Lab</title>
+	  <meta name="application-name" content="Runkeeper Web Data Connector for Tableau by The Information Lab">
+	  <meta name="author" content="The Information Lab">
+		<meta name="description" content="Runkeeper Web Data Connector for Tableau by The Information Lab">
+	  <meta name="viewport" content="width=device-width, initial-scale=1">
+	  <link href='http://fonts.googleapis.com/css?family=Raleway:400,300,600' rel='stylesheet' type='text/css'>
+	  <link rel="stylesheet" href="css/normalize.css">
+	  <link rel="stylesheet" href="css/skeleton.css">
+	  <link rel="stylesheet" href="css/main.css">
+		<link rel="stylesheet" href="css/connector.css">
+	  <link href="css/bootstrap.min.css" rel="stylesheet">
+	  <link href="css/font-awesome.min.css" rel="stylesheet">
+	  <link href="css/yay.min.css" rel="stylesheet">
+		<link href="css/fontcustom.css" rel="stylesheet">
+	  <!-- HTML5 shim IE8 support for HTML5 elements -->
+	  <!--[if lt IE 9]>
+	    <script src="js/html5shiv.min.js"></script>
+	  <![endif]-->
+
+<script src="js/jquery-1.11.1.min.js" type="text/javascript"></script>
+<script src="https://public.tableau.com/javascripts/api/tableauwdc-1.1.0.js" type="text/javascript"></script>
+<script src="js/polyline.js" type="text/javascript"></script>
+
+<script>
+	(function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+	(i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+	m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+	})(window,document,'script','https://www.google-analytics.com/analytics.js','ga');
+
+	ga('create', 'UA-27427363-6', 'auto');
+	ga('send', 'pageview');
+
+</script>
+
+<script type="text/javascript">
+
+var myConnector = tableau.makeConnector();
+
+myConnector.init = function() {
+	$('.notableau').hide();
+	$('.welcome').show();
+	tableau.initCallback();
+}
+
+var nextURL = "";
+dataSize = 0;
+
+function getActivity(uri, access_token, curRec, totalRec, callback) {
+	var results = [];
+	reqURL = "http://data.theinformationlab.co.uk/runkeeper_callback.php?req=custom&access_token=" + access_token + "&url=" + uri;
+	$.ajax({
+				url: reqURL,
+				type: 'GET',
+				success: function(data){
+					var activity = JSON.parse(data);
+					var path = activity.path;
+					var distance = activity.distance;
+					var calories = activity.calories;
+					var prevDistance = 0;
+					var prevCalories = 0;
+					var prevDuration = 0;
+					if (path.length > 0) {
+						for (var j = 0; j < path.length; j++) {
+							var entry = {};
+							entry.ActivityID = uri.replace("/fitnessActivities/","");
+							entry.TotalDuration = activity.duration;
+							entry.Equipment = activity.equipment;
+							entry.Source = activity.source;
+							var STime = new Date(activity["start_time"]);
+							var STimeStr = STime.toISOString();
+							STimeStr = STimeStr.replace("T"," ");
+							STimeStr = STimeStr.slice(0, -5);
+							entry.StartTime = STimeStr;
+							entry.TrackingMode = activity["tracking_mode"];
+							entry.ActivityType = activity.type;
+							entry.Altitude = path[j].altitude;
+							entry.Latitude = path[j].latitude;
+							entry.Longitude = path[j].longitude;
+							entry.Path = j;
+							entry.PathType = path[j].type;
+							entry.SplitTime = path[j].timestamp - prevDuration;
+							var TTime = new Date(Date.now());
+							TTime.setTime(STime.getTime()+(path[j].timestamp*1000));
+							TTimeStr = TTime.toISOString();
+							TTimeStr = TTimeStr.replace("T"," ");
+							TTimeStr = TTimeStr.slice(0,-5);
+							entry.TrackTime = TTimeStr;
+							if (distance[j]) {
+								entry.Distance = distance[j].distance - prevDistance;
+								prevDistance = distance[j].distance;
+								entry.Pace = entry.Distance / entry.SplitTime;
+							}
+							if (calories[j]) {
+								entry.Calories = calories[j].calories - prevCalories;
+								prevCalories = calories[j].calories;
+							}
+							prevDuration = path[j].timestamp;
+							results.push(entry);
+						}
+					} else {
+						var entry = {};
+						entry.TotalDuration = activity.duration;
+						entry.Equipment = activity.equipment;
+						entry.Source = activity.source;
+						var STime = new Date(activity["start_time"]);
+						var STimeStr = STime.toISOString();
+						STimeStr = STimeStr.replace("T"," ");
+						STimeStr = STimeStr.slice(0, -5);
+						entry.StartTime = STimeStr;
+						entry.TrackingMode = activity["tracking_mode"];
+						entry.ActivityType = activity.type;
+						results.push(entry);
+					}
+					++dataSize;
+					callback(results, curRec, totalRec);
+				}
+		});
+}
+
+myConnector.getColumnHeaders = function() {
+	var fieldNames = ["ActivityID","ActivityType","Altitude","Distance","Pace","Calories","Equipment","Latitude","Longitude","Path","PathType","Source","SplitTime","TrackTime","StartTime","TotalDuration","TrackingMode"];
+	var fieldTypes = ["string","string","float","float","float","float","string","float","float","int","string","string","float","datetime","datetime","int","string"];
+	tableau.headersCallback(fieldNames, fieldTypes); // tell tableau about the fields and their types
+};
+
+myConnector.getTableData = function() {
+	var toRet = [];
+	if (nextURL == "") {
+		var reqURL = "http://data.theinformationlab.co.uk/runkeeper_callback.php?req=activities&access_token=" + tableau.connectionData;
+	} else {
+		var reqURL = "http://data.theinformationlab.co.uk/runkeeper_callback.php?req=custom&access_token=" + tableau.connectionData + "&url=" + nextURL;
+	}
+	$.ajax({
+				url: reqURL,
+				type: 'GET',
+				success: function(data){
+					if (data == "Invalid Request") {
+						tableau.abortWithError("Runkeeper callback Invalid Request");
+					} else if (data != "[]") {
+						moreData = false;
+						var activitySummary = JSON.parse(data);
+						var activitySummaryItems = activitySummary.items;
+						if (activitySummary.next) {
+							moreData = true;
+							nextURL = activitySummary.next;
+						}
+						for (var i =0; i < activitySummaryItems.length; i++) {
+							var activity = activitySummaryItems[i];
+							var resultArray = getActivity(activity.uri, tableau.connectionData, i, activitySummaryItems.length, function(results, curRec, totalRec) {
+								toRet = $.merge(toRet,results);
+								if (curRec == totalRec - 1) {
+									tableau.dataCallback(toRet, dataSize.toString(), moreData);
+								}
+							});
+						}
+					}
+				}
+	});
+}
+
+myConnector.setConnection = function(access_token) {
+	tableau.connectionData = access_token;
+	tableau.connectionName = 'Runkeeper Activities';
+};
+
+tableau.registerConnector(myConnector);
+
+function getQueryParams(qs) {
+    qs = qs.split("+").join(" ");
+
+    var params = {}, tokens,
+        re = /[?&]?([^=]+)=([^&]*)/g;
+
+    while (tokens = re.exec(qs)) {
+        params[decodeURIComponent(tokens[1])]
+            = decodeURIComponent(tokens[2]);
+    }
+
+    return params;
+}
+
+$(document).ready(function() {
+	$('.notableau').show();
+	$('.welcome').hide();
+	var query = getQueryParams(document.location.search);
+	if (tableau.connectionData) {
+		tableau.submit();
+	} else if (!query.code){
+		$('#letsgo').bind('click', function(){
+				$('.ajax-loading').show();
+				window.location.href = "https://runkeeper.com/apps/authorize?client_id=5cc0102c9a2c4bf988c4fd68e08efe24&response_type=code&redirect_uri=http://data.theinformationlab.co.uk/runkeeper.html";
+			});
+	} else {
+		var reqURL = "http://data.theinformationlab.co.uk/runkeeper_callback.php?code=" + query.code;
+		$.ajax({
+        	url: reqURL,
+        	type: 'GET',
+        	success: function(data){
+						if(data == "Invalid Code") {
+							window.location.href = "https://runkeeper.com/apps/authorize?client_id=5cc0102c9a2c4bf988c4fd68e08efe24&response_type=code&redirect_uri=http://data.theinformationlab.co.uk/runkeeper.html";
+						} else {
+							$('.welcome').show();
+							$('.ajax-loading').show();
+							var receivedData = JSON.parse(data);
+	        		var access_token = receivedData["access_token"];
+							myConnector.setConnection(access_token);
+							tableau.submit();
+						}
+        	},
+        	error: function(error){
+            	console.log("Error!: " + error);
+        	}
+    	});
+	}
+
+});
+
+</script>
+</head>
+<body class="yay-hide">
+<div class="full-container">
+  <!-- Bootstrap top navbar -->
+  <nav class="navbar navbar-default navbar-fixed-top">
+    <div class="container-fluid">
+
+      <!-- Yay toggle button -->
+      <button class="btn btn-default navbar-btn yay-toggle" type="button"><i class="fa fa-bars"></i></button>
+
+      <a class="navbar-brand" href="#"></a>
+
+    </div><!-- /.container-fluid -->
+  </nav>
+  <!-- /Bootstrap top navbar -->
+
+	<div class="yaybar yay-shrink yay-hide-to-small yay-gestures yay-overlap-content yay-light">
+    <div class="nano">
+      <div class="nano-content">
+
+				<ul>
+					<li class="label">Blending Data</li>
+					<li>
+						<a href="alteryx.html"><i class="icon-alteryx" style="font-size:22px"></i>Alteryx Gallery</a>
+					</li>
+					<li>
+						<a href="parsehub.html"><i class="icon-parsehub" style="font-size:22px"></i>ParseHub</a>
+					</li>
+					<li>
+						<a href="pingdom.html"><i class="icon-pingdom" style="font-size:22px"></i>Pingdom</a>
+					</li>
+					<li>
+						<a href="quandl.html"><i class="icon-quandl" style="font-size:22px"></i>Quandl</a>
+					</li>
+					<li>
+						<a href="sharepoint.html"><i class="icon-sharepoint" style="font-size:22px"></i>SharePoint</a>
+					</li>
+					<li class="label">Online Storage</li>
+					<li>
+						<a href="onedrive.html"><i class="icon-onedrive" style="font-size:22px"></i>OneDrive</a>
+					</li>
+					<li class="label">Quantified Self</li>
+					<li>
+            <a href="fitbit.html"><i class="icon-fitbit" style="font-size:22px"></i>Fitbit</a>
+          </li>
+					<li>
+						<a href="strava.html"><i class="icon-strava" style="font-size:22px"></i>Strava</a>
+					</li>
+					<li class="active">
+						<a href="runkeeper.html"><i class="icon-Runkeeper" style="font-size:22px"></i>Runkeeper</a>
+					</li>
+					<li>
+						<a href="moves.html"><i class="icon-Moves" style="font-size:22px"></i>Moves</a>
+					</li>
+					<li>
+						<a href="googlefit.html"><i class="icon-googlefit" style="font-size:22px"></i>Google Fit</a>
+					</li>
+					<li class="label">Geocoding</li>
+					<li>
+						<a href="directions.html"><i class="icon-Mapbox" style="font-size:22px"></i>Mapbox Directions</a>
+					</li>
+					<li class="label">Created by The Information Lab</li>
+        </ul>
+
+      </div>
+    </div>
+  </div>
+  <!-- /Yay Sidebar -->
+<div class="content-wrap">
+<div class='ajax-loading' id='loadingDiv'> </div>
+ <div class="section notableau">
+ 		 <div class="tableauContainer ">
+ 				<h4 class="section-heading centre">Welcome to the Runkeeper Web Data Connector for Tableau</h4>
+ 				<p class="centre"> <img src="images/runkeeper.png" alt="runkeeper" style="width:450px;height:100px;"> </p>
+ 				<p class="section-description centre">Please open this web data connector in Tableau version 9.1 or greater.<br/><a href="http://www.tableausoftware.com/partner-trial?id=19124">Click here to download a trial</a></p>
+ 				<p class="section-logo centre"><a href="http://www.theinformationlab.co.uk"><img src="images/logo.png" alt="fitbit" style="width:188px;height:75px;"></a></p>
+ 		 </div>
+ </div>
+ <div class="section welcome">
+ 		 <div class="tableauContainer ">
+ 				<h4 class="section-heading centre">Welcome to the Runkeeper Web Data Connector for Tableau</h4>
+ 				<p class="centre"> <img src="images/runkeeper.png" alt="runkeeper" style="width:450px;height:100px;"> </p>
+ 				<p class="section-description centre">In just a few clicks, you'll be able to get your Runkeeper activity and tracking data. When you're ready, hit the button below and you'll be asked to give Tableau access to your Runkeeper account. Once complete an extract of your data will be created and you can start vizzing!.</br><a class='button button-primary button-margin' id='letsgo'>Lets go!</a></p>
+ 				<p class="section-logo centre"><a href="http://www.theinformationlab.co.uk"><img src="images/logo.png" alt="fitbit" style="width:188px;height:75px;"></a></p>
+ 		 </div>
+ </div>
+ </div>
+</div>
+ <script src="js/jquery-1.11.1.min.js"></script>
+ <script src="js/bootstrap.min.js"></script>
+ <script src="js/jquery.nanoscroller.min.js"></script>
+ <script src="js/yay.min.js"></script>
+
+</body>
+</html>

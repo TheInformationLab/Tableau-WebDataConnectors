@@ -1,0 +1,1687 @@
+<html>
+<meta http-equiv="Cache-Control" content="no-store" />
+<head>
+	<meta charset="utf-8">
+	<title>Planefinder Web Data Connector for Tableau by The Information Lab</title>
+	<meta name="application-name" content="Planefinder Web Data Connector for Tableau by The Information Lab">
+	<meta name="author" content="The Information Lab">
+	<meta name="description" content="Planefinder Web Data Connector for Tableau by The Information Lab">
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+	<link href='http://fonts.googleapis.com/css?family=Raleway:400,300,600' rel='stylesheet' type='text/css'>
+	<link rel="stylesheet" href="css/normalize.css">
+	<link rel="stylesheet" href="css/skeleton.css">
+	<link rel="stylesheet" href="css/planefinder-main.css">
+	<link rel="stylesheet" href="css/connector.css">
+	<link href="css/bootstrap.min.css" rel="stylesheet">
+	<link href="css/font-awesome.min.css" rel="stylesheet">
+	<link href="css/yay.min.css" rel="stylesheet">
+	<link href="css/fontcustom.css" rel="stylesheet">
+	<!-- HTML5 shim IE8 support for HTML5 elements -->
+	<!--[if lt IE 9]>
+		<script src="http://data.theinformationlab.co.uk/js/html5shiv.min.js"></script>
+	<![endif]-->
+
+<script src="http://data.theinformationlab.co.uk/js/jquery-1.11.1.min.js" type="text/javascript"></script>
+<script src="http://data.theinformationlab.co.uk/js/tableauwdc-1.1.1.js" type="text/javascript"></script>
+<script type="text/javascript">
+
+//	(function() {
+
+		var myConnector = tableau.makeConnector();
+		var hasAuth = false;
+
+		var H8h = {
+			'V0K': '43',
+			'a4w': 'ass',
+			'h5l': "B",
+			'U6x': 'ng',
+			'K9': 'ar',
+			'z8K': "routes",
+			't8': 7,
+			'V7K': 'click',
+			'r8': 4,
+			'i8x': 'input#map_search_box',
+			'p3': 'e_',
+			'n8': 0.9999,
+			'w6K': 'data-filter-key',
+			'A2l': 'h_',
+			'Q5l': '_c',
+			'P7K': 'tat',
+			'c4': 'E',
+			'Y8': "T",
+			'f1w': 'tr',
+			'O3K': 'planePollInterval',
+			'U1w': 'q',
+			'j1l': 'lo',
+			't5K': 'l',
+			'K5l': 'data-iata',
+			'T9': 'at',
+			'n4x': 'e',
+			'I3K': 'ta',
+			'J2l': 256,
+			'P8': "route",
+			'm2': '9',
+			'M0K': 3600000,
+			'k1w': 'pa',
+			'z8x': 'lan',
+			'V1l': 'll',
+			'K3': "ac",
+			'A7': 'es',
+			'h4': 'nd',
+			'o8': '4',
+			'E2w': 'tt',
+			'p7x': 'il',
+			'B1x': 180,
+			'Y1': 'em',
+			'U3K': 'go',
+			'm9': 'input.bookmark_create_name',
+			'v0': 500,
+			'J1w': 'v',
+			'N6K': 'd_',
+			's2': "b",
+			'q4w': "1",
+			'Q3w': "nt",
+			'x4x': 'ni',
+			'd8x': 'a.close_button_large',
+			'x5': '0',
+			'j1K': 'div#page_container_modal',
+			'A9x': "u",
+			'I4': "er",
+			'C8K': '_',
+			'G0l': '&',
+			'Y2': '//',
+			'B7w': "zoom",
+			'M0': 'div.playback_speed_slider',
+			'f1x': '',
+			'M2x': 'div#modal_overlay',
+			'c6K': 'followSelectedPlane',
+			'F3x': 13,
+			'a1': "L",
+			'k7w': "mapTypeV2",
+			'f9w': 'template',
+			'y8x': "U",
+			'k0l': 'data-bookmark-id',
+			's7x': 'sM',
+			'z9K': 'k',
+			'D3x': 32,
+			'u1': 'px_rect',
+			'u8w': 'eL',
+			's2w': 'lu',
+			'y5w': 'airportUnit',
+			'u': (function() {
+					var q = function(B, t, c) {
+									if (U[c] !== undefined) {
+											return U[c];
+									}
+									var K = 0xcc9e2d51,
+											G = 0x1b873593,
+											I = c,
+											D = t & ~0x3;
+									for (var M = 0; M < D; M += 4) {
+											var Z = (B.charCodeAt(M) & 0xff) | ((B.charCodeAt(M + 1) & 0xff) << 8) | ((B.charCodeAt(M + 2) & 0xff) << 16) | ((B.charCodeAt(M + 3) & 0xff) << 24);
+											Z = m(Z, K);
+											Z = ((Z & 0x1ffff) << 15) | (Z >>> 17);
+											Z = m(Z, G);
+											I ^= Z;
+											I = ((I & 0x7ffff) << 13) | (I >>> 19);
+											I = (I * 5 + 0xe6546b64) | 0;
+									}
+									Z = 0;
+									switch (t % 4) {
+											case 3:
+													Z = (B.charCodeAt(D + 2) & 0xff) << 16;
+											case 2:
+													Z |= (B.charCodeAt(D + 1) & 0xff) << 8;
+											case 1:
+													Z |= (B.charCodeAt(D) & 0xff);
+													Z = m(Z, K);
+													Z = ((Z & 0x1ffff) << 15) | (Z >>> 17);
+													Z = m(Z, G);
+													I ^= Z;
+									}
+									I ^= t;
+									I ^= I >>> 16;
+									I = m(I, 0x85ebca6b);
+									I ^= I >>> 13;
+									I = m(I, 0xc2b2ae35);
+									I ^= I >>> 16;
+									U[c] = I;
+									return I;
+							},
+							m = function(B, t) {
+									var c = t & 0xffff;
+									var K = t - c;
+									return ((K * B | 0) + (c * B | 0)) | 0;
+							},
+							U = {};
+					return {
+							X: m,
+							L: q
+					};
+			})(),
+			'i0K': 'canvas',
+			'I5K': "z",
+			'n8x': 'change',
+			'A3x': 'c',
+			'g7K': 'ob',
+			'K5w': 'ata',
+			'b4x': 'night_theme',
+			'H8K': 'ent',
+			'n1x': "li",
+			'l5x': 'background-image',
+			'f9': 'in',
+			'c5w': 'event',
+			'K0w': 'w',
+			'k3x': 12,
+			'Q5': "J",
+			'I0x': 'P',
+			'i9l': 'playbackSelectedFlightNo',
+			'F9': '-',
+			'W6': 'a.sidebar_close',
+			'I9w': '100%',
+			'h9K': 'm',
+			'O7': 3,
+			'h1l': "7",
+			'h7K': 'minSpeedFilterValue',
+			'g9': 'a.create_button',
+			'u8x': 'F',
+			'S2w': 'mapFadeValue',
+			'A2K': 'ct',
+			'D6K': 'selectedAirport',
+			'O8x': 'div.modal_content',
+			'a3x': 'div',
+			'j5l': 'ul',
+			'C8l': 'Ve',
+			'Y5': "ev",
+			'j7': '3',
+			'H0l': 'ha',
+			'b8l': 'le',
+			'H5w': 's',
+			'x2w': 'ing',
+			'e2l': '</',
+			'R4K': 'speedUnit',
+			'k0K': 'ght',
+			'l9x': "",
+			'K3w': ", ",
+			'H6K': 'body',
+			'T8w': 'Series',
+			'w3x': 19,
+			'O0w': 'ked',
+			'i8': 'focus',
+			'Z4K': 'div.filter_create_form',
+			'z2w': 'pageview',
+			'R2x': '[',
+			'w0w': 360,
+			'a5K': 'si',
+			'J4x': 22,
+			'D9K': 1.0,
+			'W8K': '.stacked_stat.series span.value',
+			'N7w': 'di',
+			'a0x': 'N',
+			'W0K': 'con',
+			'e7x': 'im',
+			'F1l': 'expanded',
+			'R1w': 'internalEmbed',
+			't8l': 'loading',
+			'U6': "d",
+			'E2': "H",
+			'W2': 'me',
+			'Z7K': "/speed/",
+			'q1w': 'ont',
+			'C3': "_",
+			'h0': 'public/img/markers/atlas',
+			'b0x': "n",
+			'i0': 'mg',
+			'K1x': 'send',
+			'I6w': "N/A",
+			'u8l': 'input.playback_date',
+			'J5x': 'maxSpeedFilterValue2',
+			'O9K': 100,
+			'B8': 0,
+			'X5w': 'r',
+			'T9w': '99',
+			'c8w': 'x',
+			'R5w': '[placeholder]',
+			'a7K': 'div.altitude_slider',
+			'V2K': "BALLOON",
+			'W8l': 'ue',
+			'b8': '5',
+			'a6w': 'px',
+			'E8': 'et',
+			'Q2': 'ne',
+			'm1l': "6",
+			'E5x': "flight",
+			'S1K': 'st',
+			'V2': "a",
+			'a6x': "f",
+			'O0': "G",
+			'X1w': 'ainer',
+			'K4x': "g",
+			'B3x': 'se',
+			'd2K': 'input[data-filter-key=airport]',
+			'h4x': 'submit',
+			'i7w': 'pe',
+			'c6x': "h",
+			'e0': 'maxPlaybackSpeed',
+			'I8': 8,
+			'b1l': 'xclu',
+			'O9w': 'gh',
+			'q1x': 'live',
+			'a3w': 'selectedFlightZoomLevel',
+			'F8l': '.png?v=',
+			'G7K': 10,
+			'F2w': ",",
+			'q7x': 'L',
+			'i1l': '(',
+			'l3w': true,
+			'f2x': 'fl',
+			'l3K': 'oo',
+			'B2x': 'a.next',
+			'n1l': "5",
+			'E8x': 'ngs_',
+			'M1K': 'h',
+			'L3': 'stat',
+			'M5l': 3600,
+			'x1l': 'operational',
+			'o5l': "@",
+			'S8l': '20',
+			'K6w': 'display',
+			'L0x': 'data-filter-id',
+			'I2x': "m",
+			'f8w': 'de',
+			'n6': 'playback_visible',
+			'O0x': "l",
+			'i3x': 17,
+			'O4x': 24,
+			's2x': 'paused',
+			'N5w': "aircraft",
+			'F5': ';',
+			'P2x': "LEADER",
+			't1K': 'deba',
+			'T0x': 'ine_',
+			'z9w': 'ner',
+			'G7w': "ET",
+			'w1l': 'a.playback_control',
+			'z0K': 328,
+			'Z9l': '#',
+			'l3x': 'showAirports',
+			'g2': 'eb',
+			'P9l': 'filters',
+			'l6': 'ic',
+			'Q8w': " ",
+			'p1K': "v",
+			'q9x': 'rg',
+			'B0l': 'div.settings_pillbox a',
+			'N1x': 'planeLabelContent',
+			'D8': 'Operator',
+			'T8K': 50,
+			'j7K': "px",
+			'u8K': 'b',
+			't7K': 'ded',
+			'X2w': "/",
+			'd3K': 'form',
+			'W5l': "A",
+			'p6x': "i",
+			'Q9x': "logo",
+			'O3': 'https',
+			'w5K': "y",
+			'B5K': "pl",
+			'z0x': "o",
+			'y9K': 'o',
+			'y6K': 'ol',
+			'f6': "e",
+			'K9w': '&isSSL=',
+			'v9K': 'disableFlightEstimation',
+			'g5l': "bounds",
+			'M2': "lig",
+			'w2': '.loading',
+			'E0': 'ef',
+			'R2': 're',
+			'u8': 1,
+			'F2l': 've',
+			'b8K': 60,
+			'e5w': 'orm',
+			'e9w': "GRND",
+			'H3x': 11,
+			'd4x': 38,
+			'u6K': "center",
+			'd1l': 1000,
+			'g2K': '#map_search_results',
+			'K9x': 'I',
+			'S2K': 'ion',
+			'E9l': 'ect',
+			'Z4w': 'pan',
+			'f3x': 14,
+			'E1': 'el',
+			'd0w': 't',
+			'a8K': 'ab',
+			'O6w': "0",
+			'B6w': 'bu',
+			'X4': '>',
+			'f8': ', ',
+			'M5w': "hp",
+			'E7K': 'rgba(255, 255, 255, 1)',
+			'E0l': 'active',
+			'Q0': 'span.airport',
+			'V8K': 'ai',
+			'R5x': 'S',
+			'e9': '1',
+			'b3K': 'op',
+			'w7l': 'hp',
+			'u7l': 'isMobile',
+			'N7': 'lue',
+			'L9': '/',
+			'O7x': 'rk',
+			's5K': 'ick',
+			'U9': '.',
+			'F4': 'maxAltitudeFilterValue2',
+			'Z4': 'planeLabelLine3Item2',
+			'o9l': '87',
+			'r1x': "s",
+			'U3': 'r_',
+			'Z9K': false,
+			'B7l': 'option',
+			'X5l': 'fullscreen',
+			'i7': 'er',
+			'q2w': 'none',
+			'C5K': 'ey',
+			'e8': '">',
+			'f6w': "3",
+			'Q4w': 'wP',
+			'u1l': "ne",
+			'h3w': '] ',
+			'c2': 'show_flightpath_button',
+			'A5': 'PFFiltersReapplied',
+			'Q2w': 'ht',
+			'W9l': 'planeLabelLine1Item1',
+			'v3x': '; ',
+			'n7': "rgb(255, 255, 255)",
+			'O5': ':',
+			'p1x': "p",
+			'G3x': 'f',
+			'U2x': ']',
+			'G8': 5,
+			'z9x': "t",
+			'K0l': "4",
+			'Y7K': 'div.modal_title',
+			'X9w': 'ti',
+			'N3w': null,
+			'p8x': 'bl',
+			'C6w': "2",
+			'f2': "en",
+			'N1w': "opacity",
+			'o8x': 'bookmarks',
+			'm8l': "?",
+			'W2w': 'vi',
+			'H4': 'ra',
+			'J7K': 'ad',
+			'C6': 'C',
+			'o6': 'rc',
+			'J8': 'it',
+			'v0x': "airport",
+			'e1K': 'ook',
+			'o1K': 'ou',
+			'y1x': 'np',
+			'l5': "I",
+			'e4K': '_p',
+			'U5K': 'i',
+			's1K': 'a.filter_active_toggle',
+			'r5K': '&hex=',
+			'p9x': 'V',
+			'H6': "c",
+			'x8': 6,
+			'o2x': "k",
+			'j6x': ': ',
+			't2x': 'base',
+			'A6K': ' - ',
+			'D7K': 'd',
+			'v4x': 'ff',
+			'D7w': "nts",
+			'f1l': 'data-tooltip',
+			'g7w': 'te',
+			'X8': 9,
+			'a5l': "iv",
+			'T8l': "=",
+			'U2l': ')',
+			'W8': "S",
+			'B2w': 'pu',
+			'w5': "TRIANGLE",
+			'u7K': 'disabled',
+			'H7x': 'rl',
+			'b9l': 'ce',
+			'P2w': "-",
+			't8w': 'isEmbedded',
+			'n6K': '_con',
+			'j4w': 'ctive',
+			'j3': 'planeLabelLine3Item1',
+			'Y2w': 'lt',
+			'b1': '=',
+			'h8': 2,
+			'L5x': 'nt',
+			'O5l': 'un',
+			'J6': 'ba',
+			'd4K': 'block',
+			'A0w': ".",
+			'k1': 'mi',
+			'q3': 'a.hover_delete_button',
+			'k3': 0.5,
+			'J5l': 'blur',
+			'I7K': 'div.speed_slider',
+			'w2x': 's_',
+			'Q5K': "x",
+			'U8w': 'y',
+			'V1': 'a.close_button',
+			's7': 'an',
+			'T8x': "om",
+			'n5l': 'planeLabelLine1Item2',
+			't2l': 'ut',
+			'T4K': 'div#sidebar_container',
+			'N9K': 'n',
+			'Y0w': 'u',
+			'a4x': 'a.prev',
+			'z4': 'bed',
+			's1x': 'select[name=playback_time_hour]',
+			'r8x': 'ie',
+			'W0': "F",
+			'R9w': 'src',
+			'z1': '<',
+			'H0w': 'to',
+			'K6K': '_t',
+			'F8x': 'eU',
+			'n8K': '#map_zoom_controls',
+			'B1w': 'p',
+			'g0w': '&requestThumb=1',
+			'X1l': 'um',
+			'p8l': 'ch',
+			'K9l': '2d',
+			'Y3K': 'on',
+			'z3x': 20,
+			'V2x': 'ter',
+			'F5K': 'al',
+			'g8x': 'ig',
+			'y2': '.day_of_operation[data-day="tue"]',
+			'u7w': '_l',
+			'V7l': '="',
+			'k3w': 'checked',
+			'Y0x': 'rs',
+			't1l': 'altitudeUnit',
+			'X3w': 'href',
+			'e1x': "/time/",
+			's4': '?',
+			'g3x': 'og',
+			'z1K': 'igh',
+			'L0w': 'planeLabelLine2Item2',
+			'j5x': 'T',
+			'L8': "R",
+			'l8': 'ap',
+			'X8l': 'Path',
+			'D2K': '_s',
+			'O5x': '"]',
+			'v4K': 'La',
+			'z7l': 'ma',
+			'u3w': 'lte',
+			'T5K': 'g',
+			'w0': 'iv',
+			'D6w': 'minAltitudeFilterValue',
+			'S0w': "://",
+			'J7': '2',
+			'Z6x': 'li.template',
+			'R3K': 'la',
+			'C6x': 'der',
+			'a7': 'is',
+			'u9': 'en',
+			'J1l': 'boolean',
+			'N9l': 'li',
+			'S3x': 16,
+			'Y0l': ',',
+			's8x': '0px',
+			'F9w': 'th',
+			'd8l': ' ',
+			'T9l': 'ontai',
+			'Y7l': 'div.results',
+			'N7l': 'playback_active',
+			'F7K': 'a',
+			'd3x': 15,
+			'h5': 'div#page_container_mobile_modal',
+			'P4w': 'ho',
+			'N2l': 'ck',
+			'i5K': "la",
+			'V6': 'id',
+			'O4': "et",
+			'v6': 'ed',
+			'Z8': 'ir',
+			'i3': 'A',
+			'D8K': 'ac',
+			'v8l': "2d",
+			'x0x': 'img.airline_logo',
+			'V3K': 'url(',
+			'A5x': "r",
+			'X1K': 'baseURL',
+			'B2K': 'planeLabelLine2Item1',
+			'f6x': '470px',
+			'v2': '8',
+			'l2l': "in",
+			'k1l': 'select, input',
+			'E5': "P"
+	};
+
+		var decryptEncodedValue = function(B, t) {
+            var c = "+=[]{}'/?<>,|",
+                K = "!@£$%^&*()",
+                G = "YZ",
+                I = "VWX",
+                D = "QR",
+                M = "MNOP",
+                Z = "KL",
+                q = "GH",
+                m = "CDE",
+                U = "AB",
+                b = "mnopqrstuvw",
+                C = "jkl",
+                E = "hi",
+                p = "cde",
+                N = "9ab",
+                v = "45678",
+                j = "12",
+                S = ".-",
+                F = (S + H8h.O6w + j + H8h.f6w + v + N + p + H8h.a6x + H8h.K4x + E + C + b + H8h.Q5K + H8h.w5K + H8h.I5K + U + m + H8h.W0 + q + H8h.l5 + H8h.Q5 + Z + M + D + H8h.W8 + H8h.Y8 + H8h.y8x + I + G + K + H8h.C3 + c),
+                n = H8h.l9x;
+            for (var l = H8h.B8; l < B.length; l++) {
+                var W = B.substring(l, l + H8h.u8),
+                    H = F.indexOf(W),
+                    d = H ^ t,
+                    f = F.substring(d, d + H8h.u8);
+                n += f;
+            }
+            return n;
+        };
+		var findMarkerSourceForType = function (B) {
+			    var t = "VEHICLE",
+			        c = "ZVEH",
+			        K = "SERVICE",
+			        G = "LEADER9",
+			        I = "R8",
+			        D = "LE",
+			        M = "LEADER7",
+			        Z = "LEADER6",
+			        q = "LEADER5",
+			        m = "LEADER4",
+			        U = "LEADER3",
+			        b = "LEADER2",
+			        C = "LEADER1",
+			        E = "SU95",
+			        p = "J328",
+			        N = "DC10",
+			        v = "CS3",
+			        j = "CS1",
+			        S = "A158",
+			        F = "A148",
+			        n = "VENT",
+			        l = "AC",
+			        W = "GLID",
+			        H = "SF25",
+			        d = "S10S",
+			        f = "RF5",
+			        a = "NI",
+			        k = "LS8",
+			        h7 = "LS10",
+			        Q = "LK17",
+			        u7 = "KIWI",
+			        V = "JANU",
+			        P = "G109",
+			        O = "G103",
+			        R = "DUOD",
+			        x7 = "DISC",
+			        g = "DIMO",
+			        W7 = "DG8",
+			        g7 = "DG50",
+			        f7 = "DG",
+			        F7 = "DG1T",
+			        l7 = "AV68",
+			        B7 = "AS31",
+			        L7 = "T154",
+			        b7 = "B712",
+			        U7 = "F900",
+			        P7 = "F100",
+			        e7 = "F70",
+			        k7 = "P180",
+			        H7 = "C335",
+			        M7 = "C21T",
+			        d7 = "DC6",
+			        R7 = "C3",
+			        p8 = "DC3",
+			        N8 = "MU2",
+			        w8 = "C337",
+			        E7 = "C441",
+			        j8 = "C310",
+			        K8 = "P38",
+			        o7 = "JS32",
+			        Q7 = "S41",
+			        T = "JS31",
+			        e = "SW4",
+			        M8 = "SW3",
+			        S7 = "SW2",
+			        r7 = "B19",
+			        I7 = "TBEE",
+			        V7 = "G159",
+			        p7 = "C303",
+			        c9 = "BE7",
+			        y8 = "PA39",
+			        q8 = "DA42",
+			        F8 = "DHC3",
+			        k8 = "DHC7",
+			        H8 = "DHC6",
+			        a8 = "G44",
+			        s8 = "BE30",
+			        o9 = "PA60",
+			        Q9 = "P34A",
+			        c8 = "PA44",
+			        x9 = "ATP",
+			        z9 = "BE10",
+			        w7 = "SB20",
+			        N9 = "SF34",
+			        D7 = "AN26",
+			        G9 = "P68",
+			        Y9 = "DH8D",
+			        w9 = "DH8C",
+			        A9 = "DH8B",
+			        P9 = "DH8A",
+			        J9 = "B350",
+			        W9 = "C340",
+			        r9 = "BE99",
+			        i9 = "D328",
+			        j9 = "D228",
+			        V9 = "SH33",
+			        d9 = "SH36",
+			        u5 = "F50",
+			        c7 = "PAY1",
+			        t7 = "BE20",
+			        X9 = "PA23",
+			        I9 = "34",
+			        l9 = "PA31",
+			        R9 = "AEST",
+			        O9 = "ASTR",
+			        B5 = "00",
+			        t5 = "150",
+			        D9 = "FA40",
+			        s = "FA30",
+			        v9 = "FA20",
+			        L5 = "FA10",
+			        Q8 = "C9",
+			        Z7 = "90",
+			        S9 = "DC",
+			        z8 = "SBR2",
+			        q9 = "SBR1",
+			        g8 = "PRM1",
+			        Z9 = "GLAX",
+			        s9 = "C750",
+			        m8 = "HA4T",
+			        y9 = "G280",
+			        Y7 = "50",
+			        T8 = "GL5T",
+			        M9 = "GALX",
+			        A8 = "FA50",
+			        z7 = "E45X",
+			        n9 = "C510",
+			        G7 = "F2TH",
+			        X7 = "E50P",
+			        m5 = "E55P",
+			        q5 = "GLEX",
+			        C9 = "CL30",
+			        U5 = "FA5X",
+			        b9 = "FA7X",
+			        C5 = "U30",
+			        o = "M",
+			        Z5 = "LRJ",
+			        Y = "C680",
+			        D5 = "F9EX",
+			        M5 = "SINGLEPROP",
+			        A = "SE5R",
+			        J = "WACF",
+			        K5 = "WT9",
+			        c5 = "TRIN",
+			        b5 = "T28",
+			        H9 = "SA3",
+			        S5 = "CRES",
+			        h1 = "C162",
+			        V5 = "C160",
+			        P5 = "HROC",
+			        R5 = "CB1",
+			        J5 = "SREY",
+			        v7 = "T4",
+			        g5 = "AA",
+			        y7 = "COL4",
+			        G1 = "COL3",
+			        n5 = "CH2T",
+			        y5 = "P46T",
+			        v5 = "GA7",
+			        K1 = "10",
+			        x1 = "P2",
+			        c1 = "EV",
+			        p5 = "DA40",
+			        m7 = "TVLB",
+			        N5 = "BE35",
+			        q7 = "P32T",
+			        L1 = "P32R",
+			        B1 = "NAVI",
+			        t1 = "AC11",
+			        M1 = "C210",
+			        a5 = "PIVI",
+			        k5 = "DV20",
+			        i5 = "DA20",
+			        D1 = "TBM8",
+			        j5 = "M7",
+			        I1 = "BE77",
+			        X1 = "Z42",
+			        r1 = "E300",
+			        H5 = "DRIF",
+			        s5 = "115",
+			        R8 = "G58",
+			        f5 = "C10T",
+			        h9 = "PUP",
+			        e5 = "PL2",
+			        I5 = "ERCO",
+			        U1 = "GP4",
+			        X5 = "TOUR",
+			        C1 = "M5",
+			        d8 = "D11",
+			        m1 = "CH7B",
+			        q1 = "CH7A",
+			        V8 = "STST",
+			        Z1 = "CJ1",
+			        O8 = "C170",
+			        w1 = "C175",
+			        S8 = "C172",
+			        N1 = "C177",
+			        v8 = "JUNR",
+			        j1 = "GLAS",
+			        t9 = "COOT",
+			        U8 = "LGEZ",
+			        i1 = "H2T",
+			        T7 = "D",
+			        C8 = "DH3T",
+			        l1 = "DHC",
+			        d1 = "DHC1",
+			        W1 = "T18",
+			        z5 = "SY75",
+			        o5 = "FBA2",
+			        E9 = "C82R",
+			        k9 = "MJ5",
+			        C7 = "TBM7",
+			        p9 = "EVOL",
+			        a9 = "RV8",
+			        G5 = "RV7",
+			        d5 = "RV6",
+			        r5 = "RV4",
+			        W5 = "RV3",
+			        B9 = "SYMP",
+			        p1 = "J1",
+			        K7 = "PA46",
+			        A1 = "PA40",
+			        r0 = "8",
+			        X0 = "PA",
+			        I0 = "GY20",
+			        D0 = "PA18",
+			        Z0 = "KR2",
+			        q0 = "BE17",
+			        m0 = "BE19",
+			        C0 = "P27",
+			        U0 = "DH88",
+			        b0 = "DH87",
+			        p0 = "DH86",
+			        N0 = "DH85",
+			        J1 = "DH83",
+			        T1 = "DH82",
+			        P1 = "C195",
+			        g1 = "CH70",
+			        O1 = "AA5",
+			        R1 = "FDCT",
+			        u0 = "GC1",
+			        L0 = "BE36",
+			        t0 = "PA11",
+			        B0 = "MCR4",
+			        K0 = "PC12",
+			        c0 = "BE24",
+			        G0 = "BE23",
+			        x0 = "PC21",
+			        J0 = "S208",
+			        g0 = "MO20",
+			        A0 = "KODI",
+			        T0 = "C77R",
+			        Y0 = "PA25",
+			        o0 = "PA22",
+			        z0 = "PA24",
+			        u2 = "PA32",
+			        L2 = "PA30",
+			        V0 = "BE33",
+			        h2 = "5R",
+			        R0 = "K",
+			        P0 = "A124",
+			        n0 = "E6",
+			        S0 = "IL86",
+			        d0 = "IL96",
+			        l0 = "32",
+			        j0 = "A3ST",
+			        a0 = "CA",
+			        k0 = "G2",
+			        H0 = "A109",
+			        s0 = "B430",
+			        f0 = "B429",
+			        F0 = "B427",
+			        y0 = "B412",
+			        i2 = "H500",
+			        l2 = "B407",
+			        d2 = "UH12",
+			        b2 = "UH1",
+			        p2 = "S58T",
+			        N2 = "R66",
+			        j2 = "R22",
+			        k2 = "R44",
+			        a2 = "O",
+			        e2 = "GY",
+			        S2 = "FU24",
+			        n2 = "EH10",
+			        F2 = "B06",
+			        H2 = "B609",
+			        G2 = "A169",
+			        X2 = "A189",
+			        r2 = "H269",
+			        t2 = "MD",
+			        B2 = "EC20",
+			        x2 = "EC45",
+			        K2 = "EC2",
+			        q2 = "3B",
+			        U2 = "AS",
+			        C2 = "AS32",
+			        I2 = "A149",
+			        Z2 = "A139",
+			        D2 = "61",
+			        G6 = "S76",
+			        x6 = "S72",
+			        I6 = "S92",
+			        X6 = "T214",
+			        r6 = "T204",
+			        c6 = "IL76",
+			        t6 = "LC",
+			        B6 = "BALL",
+			        K6 = "VELO",
+			        O2 = "SHIP",
+			        h6 = "RADA",
+			        J2 = "RJ100",
+			        P2 = "C130",
+			        L6 = "RJ1H",
+			        u6 = "RJ70",
+			        z2 = "RJ85",
+			        S1 = "EUROCOPTER",
+			        o2 = "AS6",
+			        T2 = "AS5",
+			        A2 = "EC3",
+			        k6 = "EC5",
+			        n1 = "FOKKER100",
+			        a6 = "CRJ",
+			        y1 = "GLIDER",
+			        Q6 = "HB3",
+			        e6 = "HB2",
+			        Y6 = "AS2",
+			        z6 = "BER",
+			        i6 = "YK4",
+			        j6 = "MD1",
+			        S6 = "MD8",
+			        d6 = "E19",
+			        y6 = "E17",
+			        v1 = "PRIVATEJET",
+			        s6 = "WW2",
+			        F6 = "C65",
+			        m6 = "BE4",
+			        b6 = "C56",
+			        E6 = "E1",
+			        p6 = "E13",
+			        N6 = "C50",
+			        w6 = "EA5",
+			        D6 = "H25",
+			        M6 = "LJ8",
+			        Z6 = "LJ6",
+			        q6 = "LJ4",
+			        U4 = "LJ",
+			        C4 = "LJ2",
+			        m4 = "C25",
+			        q4 = "C60",
+			        M4 = "CL6",
+			        D4 = "GLF",
+			        r4 = "C55",
+			        G4 = "C52",
+			        s1 = "TWINPROP",
+			        x4 = "AC5",
+			        K4 = "AC9",
+			        t4 = "C42",
+			        L4 = "C41",
+			        B4 = "BE6",
+			        u4 = "AT",
+			        O6 = "CVL",
+			        R6 = "E8",
+			        f1 = "9",
+			        F1 = "E",
+			        g6 = "C32",
+			        P6 = "C40",
+			        A6 = "E12",
+			        T6 = "E11",
+			        J4 = "BE5",
+			        T4 = "AT7",
+			        g4 = "RO",
+			        Q4 = "EP",
+			        o4 = "SINGL",
+			        A4 = "M20",
+			        Y4 = "C15",
+			        k4 = "PTS",
+			        f4 = "LNC",
+			        e4 = "C20",
+			        a4 = "P28",
+			        v4 = "JAB",
+			        S4 = "SR2",
+			        y4 = "V",
+			        n4 = "C18",
+			        e1 = "A380",
+			        W4 = "C17",
+			        l4 = "A38",
+			        d4 = "A350",
+			        i4 = "A35",
+			        H1 = "A340",
+			        N4 = "A34",
+			        w4 = "330",
+			        j4 = "A33",
+			        b4 = "A321",
+			        E4 = "A32",
+			        p4 = "A320",
+			        h3 = "A31",
+			        u3 = "A300",
+			        B3 = "A30",
+			        t3 = "B787",
+			        P4 = "78",
+			        R4 = "777",
+			        V4 = "B7",
+			        G3 = "B767",
+			        r3 = "B76",
+			        Q1 = "B757",
+			        c3 = "B75",
+			        o1 = "B747",
+			        x3 = "B74",
+			        T5 = "B737",
+			        X3 = "B73",
+			        z = H8h.Z9K;
+			    if (B) {
+			        B = B.toUpperCase();
+			        var I3 = B.substring(H8h.B8, H8h.O7);
+			        switch (I3) {
+			            case X3:
+			                z = T5;
+			                break;
+			            case x3:
+			                z = o1;
+			                break;
+			            case c3:
+			                z = Q1;
+			                break;
+			            case r3:
+			                z = G3;
+			                break;
+			            case (V4 + H8h.h1l):
+			                z = (H8h.h5l + R4);
+			                break;
+			            case (H8h.h5l + P4):
+			                z = t3;
+			                break;
+			            case (B3):
+			                z = u3;
+			                break;
+			            case h3:
+			                z = p4;
+			                break;
+			            case E4:
+			                z = b4;
+			                break;
+			            case j4:
+			                z = (H8h.W5l + w4);
+			                break;
+			            case N4:
+			                z = H1;
+			                break;
+			            case i4:
+			                z = d4;
+			                break;
+			            case l4:
+			            case W4:
+			                z = e1;
+			                break;
+			            case n4:
+			            case (H8h.L8 + y4 + H8h.q4w):
+			            case S4:
+			            case v4:
+			            case a4:
+			            case e4:
+			            case f4:
+			            case k4:
+			            case Y4:
+			            case A4:
+			                z = (o4 + Q4 + g4 + H8h.E5);
+			                break;
+			            case T4:
+			            case J4:
+			            case T6:
+			            case A6:
+			            case P6:
+			            case g6:
+			            case (H8h.h5l + F1 + f1):
+			            case (H8h.h5l + R6):
+			            case O6:
+			            case (u4 + H8h.K0l):
+			            case B4:
+			            case L4:
+			            case t4:
+			            case K4:
+			            case x4:
+			                z = s1;
+			                break;
+			            case G4:
+			            case r4:
+			            case D4:
+			            case M4:
+			            case (q4):
+			            case m4:
+			            case C4:
+			            case (U4 + H8h.f6w):
+			            case q6:
+			            case (H8h.a1 + H8h.Q5 + H8h.n1l):
+			            case Z6:
+			            case M6:
+			            case D6:
+			            case w6:
+			            case N6:
+			            case p6:
+			            case (E6 + H8h.K0l):
+			            case b6:
+			            case m6:
+			            case F6:
+			            case s6:
+			                z = v1;
+			                break;
+			            case y6:
+			            case d6:
+			            case S6:
+			            case j6:
+			            case i6:
+			            case z6:
+			                z = T5;
+			                break;
+			            case Y6:
+			            case e6:
+			            case Q6:
+			                z = y1;
+			                break;
+			            case a6:
+			                z = n1;
+			                break;
+			            case k6:
+			            case A2:
+			            case T2:
+			            case o2:
+			                z = S1;
+			                break;
+			        }
+			        switch (B) {
+			            case z2:
+			            case u6:
+			            case L6:
+			            case P2:
+			                z = J2;
+			                break;
+			            case h6:
+			            case H8h.e9w:
+			            case O2:
+			            case K6:
+			                z = H8h.w5;
+			                break;
+			            case B6:
+			                z = H8h.V2K;
+			                break;
+			            case (H8h.h5l + t6 + H8h.W0):
+			                z = o1;
+			                break;
+			            case c6:
+			                z = e1;
+			                break;
+			            case r6:
+			            case X6:
+			                z = Q1;
+			                break;
+			            case I6:
+			            case x6:
+			            case G6:
+			            case (H8h.W8 + D2):
+			            case Z2:
+			            case I2:
+			            case C2:
+			            case (U2 + q2):
+			            case (K2 + H8h.n1l):
+			            case x2:
+			            case B2:
+			            case (t2 + H8h.n1l + H8h.C6w):
+			            case r2:
+			            case X2:
+			            case G2:
+			            case H2:
+			            case F2:
+			            case n2:
+			            case S2:
+			            case (e2 + H8h.L8 + a2):
+			            case k2:
+			            case j2:
+			            case N2:
+			            case p2:
+			            case b2:
+			            case d2:
+			            case l2:
+			            case i2:
+			            case y0:
+			            case F0:
+			            case f0:
+			            case s0:
+			            case H0:
+			            case (k0 + a0):
+			                z = S1;
+			                break;
+			            case j0:
+			                z = (H8h.W5l + l0 + H8h.O6w);
+			                break;
+			            case d0:
+			            case S0:
+			            case (n0):
+			            case P0:
+			            case (R0 + H8h.f6w + h2):
+			                z = H1;
+			                break;
+			            case V0:
+			            case L2:
+			            case u2:
+			            case z0:
+			            case o0:
+			            case Y0:
+			            case T0:
+			            case (A0):
+			            case g0:
+			            case J0:
+			            case x0:
+			            case G0:
+			            case c0:
+			            case K0:
+			            case B0:
+			            case t0:
+			            case L0:
+			            case u0:
+			            case R1:
+			            case O1:
+			            case g1:
+			            case P1:
+			            case T1:
+			            case J1:
+			            case N0:
+			            case p0:
+			            case b0:
+			            case U0:
+			            case C0:
+			            case m0:
+			            case q0:
+			            case Z0:
+			            case D0:
+			            case I0:
+			            case (X0 + H8h.f6w + r0):
+			            case A1:
+			            case K7:
+			            case p1:
+			            case B9:
+			            case W5:
+			            case r5:
+			            case d5:
+			            case G5:
+			            case a9:
+			            case p9:
+			            case C7:
+			            case k9:
+			            case E9:
+			            case o5:
+			            case z5:
+			            case W1:
+			            case d1:
+			            case (l1 + H8h.C6w):
+			            case C8:
+			            case (T7 + i1):
+			            case U8:
+			            case t9:
+			            case (H8h.O6w + H8h.q4w):
+			            case j1:
+			            case v8:
+			            case N1:
+			            case S8:
+			            case w1:
+			            case O8:
+			            case Z1:
+			            case V8:
+			            case q1:
+			            case m1:
+			            case d8:
+			            case C1:
+			            case X5:
+			            case U1:
+			            case I5:
+			            case e5:
+			            case h9:
+			            case f5:
+			            case R8:
+			            case (H8h.O0 + s5):
+			            case H5:
+			            case r1:
+			            case X1:
+			            case I1:
+			            case j5:
+			            case D1:
+			            case i5:
+			            case k5:
+			            case a5:
+			            case M1:
+			            case t1:
+			            case B1:
+			            case L1:
+			            case q7:
+			            case N5:
+			            case m7:
+			            case p5:
+			            case (c1 + H8h.W8 + H8h.W8):
+			            case (x1 + K1):
+			            case v5:
+			            case y5:
+			            case n5:
+			            case G1:
+			            case y7:
+			            case (g5 + v7):
+			            case J5:
+			            case R5:
+			            case P5:
+			            case V5:
+			            case h1:
+			            case S5:
+			            case H9:
+			            case b5:
+			            case c5:
+			            case K5:
+			            case J:
+			            case A:
+			                z = M5;
+			                break;
+			            case D5:
+			            case Y:
+			            case Z5:
+			            case (o + C5):
+			            case b9:
+			            case U5:
+			            case C9:
+			            case q5:
+			            case (m5):
+			            case X7:
+			            case G7:
+			            case n9:
+			            case z7:
+			            case A8:
+			            case M9:
+			            case T8:
+			            case (H8h.O0 + H8h.C6w + Y7):
+			            case y9:
+			            case m8:
+			            case s9:
+			            case Z9:
+			            case g8:
+			            case q9:
+			            case z8:
+			            case (S9 + f1 + H8h.f6w):
+			            case (o + T7 + Z7):
+			            case (T7 + Q8 + H8h.n1l):
+			            case L5:
+			            case v9:
+			            case s:
+			            case D9:
+			            case (H8h.O0 + t5):
+			            case (H8h.O0 + H8h.C6w + B5):
+			            case O9:
+			                z = v1;
+			                break;
+			            case R9:
+			            case l9:
+			            case (H8h.E5 + H8h.W5l + I9):
+			            case X9:
+			            case t7:
+			            case c7:
+			            case u5:
+			            case d9:
+			            case V9:
+			            case j9:
+			            case i9:
+			            case r9:
+			            case W9:
+			            case J9:
+			            case P9:
+			            case A9:
+			            case w9:
+			            case Y9:
+			            case G9:
+			            case D7:
+			            case (G9 + H8h.Y8):
+			            case N9:
+			            case w7:
+			            case z9:
+			            case x9:
+			            case c8:
+			            case (Q9):
+			            case o9:
+			            case s8:
+			            case a8:
+			            case H8:
+			            case k8:
+			            case F8:
+			            case q8:
+			            case y8:
+			            case (c9 + H8h.m1l):
+			            case p7:
+			            case V7:
+			            case I7:
+			            case (H8h.E5 + H8h.W5l + H8h.C6w + H8h.h1l):
+			            case (r7 + H8h.O6w):
+			            case S7:
+			            case M8:
+			            case e:
+			            case T:
+			            case (H8h.Q5 + Q7):
+			            case o7:
+			            case K8:
+			            case j8:
+			            case E7:
+			            case w8:
+			            case N8:
+			            case p8:
+			            case (T7 + R7 + H8h.Y8):
+			            case d7:
+			            case M7:
+			            case H7:
+			            case (v5):
+			            case k7:
+			                z = s1;
+			                break;
+			            case e7:
+			            case P7:
+			            case U7:
+			            case b7:
+			            case L7:
+			                z = n1;
+			                break;
+			            case B7:
+			            case l7:
+			            case F7:
+			            case (f7 + H8h.K0l + H8h.O6w):
+			            case g7:
+			            case (W7 + H8h.O6w):
+			            case g:
+			            case x7:
+			            case R:
+			            case O:
+			            case P:
+			            case V:
+			            case u7:
+			            case Q:
+			            case h7:
+			            case k:
+			            case (a + o + H8h.h5l):
+			            case (f):
+			            case d:
+			            case H:
+			            case W:
+			            case (H8h.y8x + H8h.a1 + l):
+			            case n:
+			                z = y1;
+			                break;
+			            case F:
+			            case S:
+			            case j:
+			            case v:
+			            case N:
+			            case p:
+			            case E:
+			                z = T5;
+			                break;
+			            case C:
+			            case b:
+			            case U:
+			            case m:
+			            case q:
+			            case Z:
+			            case M:
+			            case (D + H8h.W5l + T7 + F1 + I):
+			            case G:
+			            case H8h.P2x:
+			            case K:
+			            case c:
+			                z = t;
+			                break;
+			        }
+			    }
+			    if (!z) z = T5;
+			    return z;
+			};
+		var fetchAirlineFromCallsign = function(t) {
+				var c;
+				try {
+						c = t.substr(H8h.B8, H8h.O7).toUpperCase();
+				} catch (B) {
+						c = H8h.l9x;
+				}
+				return c;
+		};
+
+		myConnector.init = function() {
+
+			if (tableau.phase == tableau.phaseEnum.interactivePhase ||
+												 tableau.phase == tableau.phaseEnum.authPhase) {
+				console.log("Tableau WDC Detected");
+				if (tableau.connectionData) {
+					hasAuth = true;
+					if (tableau.phase == tableau.phaseEnum.authPhase) {
+						console.log("Entering Auth Phase");
+						// Auto-submit here if we are in the auth phase
+						tableau.submit()
+					}
+				}
+			}
+
+			if (tableau.phase == tableau.phaseEnum.interactivePhase) {
+				console.log("Entering Interactive Phase");
+				if (!hasAuth) {
+					$('.ajax-loading').hide();
+					$('.noTableau').hide();
+					$('.welcome').show();
+					$('#letsgo').bind('click', function(){
+							$('.ajax-loading').show();
+							myConnector.setConnection();
+							tableau.submit();
+						});
+				}
+			}
+			tableau.incrementalExtractColumn = "Timestamp";
+			tableau.initCallback();
+		};
+
+		myConnector.getColumnHeaders = function() {
+			var fieldNames = ["Timestamp","Adshex","Reg","FlightNo","Lat","Lon","Altitude","Heading","Speed","MTime","Type","Route","Callsign","Vertrate","Airline","MarkerType","PlaneType"];
+			var fieldTypes = ["datetime","string","string","string","float","float","int","int","float","string","string","string","string","string","string","string","string"];
+			tableau.headersCallback(fieldNames, fieldTypes); // tell tableau about the fields and their types
+		};
+
+		myConnector.getTableData = function() {
+			var settings = {
+			  "async": true,
+			  "crossDomain": true,
+			  "url": "https://planefinder.net/endpoints/update.php?callback=planeData",
+			  //"method": "GET",
+				"jsonp": "callback",
+				"dataType": "jsonp",
+			}
+
+			$.ajax(settings).done(function (response) {
+
+				console.log(response);
+				var B = response;
+				var timestamp = new Date();
+				var timestampStr = timestamp.toISOString();
+				timestampStr = timestampStr.replace("T"," ");
+				timestampStr = timestampStr.slice(0, -5);
+				var result = [];
+				var c = B.isEncoded;
+				for (var K in B.planes) {
+						for (var G in B.planes[K]) {
+								var I = B.planes[K][G][H8h.I8],
+										D = B.planes[K][G][H8h.O7],
+										M = B.planes[K][G][H8h.r8];
+								if (c) {
+										var Z = parseInt(I.substring(I.length - H8h.u8));
+										D = decryptEncodedValue(D, Z);
+										M = decryptEncodedValue(M, Z);
+								}
+								var q = H8h.Z9K,
+										m = parseInt(K),
+										U = B.planes[K][G][H8h.G7K],
+										b = B.planes[K][G][H8h.H3x],
+										C = findMarkerSourceForType(B.planes[K][G][H8h.B8]),
+										E = {
+												Timestamp: timestampStr,
+												Type: B.planes[K][G][H8h.B8],
+												Reg: B.planes[K][G][H8h.u8],
+												Callsign: B.planes[K][G][H8h.h8],
+												FlightNo: U,
+												Adshex: G,
+												Lat: parseFloat(D),
+												Lon: parseFloat(M),
+												Altitude: parseInt(B.planes[K][G][H8h.G8]),
+												Heading: parseInt(B.planes[K][G][H8h.x8]),
+												Speed: parseInt(B.planes[K][G][H8h.t8]),
+												MTime: parseInt(I),
+												Route: b,
+												//route_array: b ? b.split(H8h.F9) : [],
+												Airline: (B.planes[K][G][H8h.X8].length == H8h.O7) ? B.planes[K][G][H8h.X8] : fetchAirlineFromCallsign(B.planes[K][G][H8h.h8]),
+												PlaneType: m,
+												MarkerType: C
+										};
+										result.push(E);
+							}
+						}
+					console.log(result);
+					tableau.dataCallback(result, result.length, false);
+			});
+		};
+
+		myConnector.setConnection = function() {
+			//tableau.connectionData = authToken;
+			tableau.connectionName = 'Planefinder Live Plane Data'; // name the data source. This will be the data source name in Tableau
+		};
+
+		tableau.registerConnector(myConnector);
+
+//	})();
+
+	$(document).ready(function() {
+		$('.welcome').hide();
+	});
+
+</script>
+</head>
+<body class="yay-hide">
+<div class="full-container">
+  <!-- Bootstrap top navbar -->
+  <nav class="navbar navbar-default navbar-fixed-top">
+    <div class="container-fluid">
+
+      <!-- Yay toggle button -->
+      <button class="btn btn-default navbar-btn yay-toggle" type="button"><i class="fa fa-bars"></i></button>
+
+      <a class="navbar-brand" href="#"></a>
+
+    </div><!-- /.container-fluid -->
+  </nav>
+  <!-- /Bootstrap top navbar -->
+
+	<div class="yaybar yay-shrink yay-hide-to-small yay-gestures yay-overlap-content yay-light">
+    <div class="nano">
+      <div class="nano-content">
+
+				<ul>
+					<li class="label">Blending Data</li>
+					<li>
+						<a href="alteryx.html"><i class="icon-alteryx" style="font-size:22px"></i>Alteryx Gallery</a>
+					</li>
+					<li>
+						<a href="parsehub.html"><i class="icon-parsehub" style="font-size:22px"></i>ParseHub</a>
+					</li>
+					<li>
+						<a href="pingdom.html"><i class="icon-pingdom" style="font-size:22px"></i>Pingdom</a>
+					</li>
+					<li>
+						<a href="quandl.html"><i class="icon-quandl" style="font-size:22px"></i>Quandl</a>
+					</li>
+					<li class="label">Quantified Self</li>
+					<li>
+            <a href="fitbit.html"><i class="icon-fitbit" style="font-size:22px"></i>Fitbit</a>
+          </li>
+					<li>
+						<a href="strava.html"><i class="icon-strava" style="font-size:22px"></i>Strava</a>
+					</li>
+					<li>
+						<a href="runkeeper.html"><i class="icon-Runkeeper" style="font-size:22px"></i>Runkeeper</a>
+					</li>
+					<li class="active">
+						<a href="moves.html"><i class="icon-Moves" style="font-size:22px"></i>Moves</a>
+					</li>
+					<li>
+						<a href="googlefit.html"><i class="icon-googlefit" style="font-size:22px"></i>Google Fit</a>
+					</li>
+					<li class="label">Geocoding</li>
+					<li>
+						<a href="directions.html"><i class="icon-Mapbox" style="font-size:22px"></i>Mapbox Directions</a>
+					</li>
+					<li class="label">Created by The Information Lab</li>
+        </ul>
+
+      </div>
+    </div>
+  </div>
+  <!-- /Yay Sidebar -->
+<div class="content-wrap">
+<div class='ajax-loading' id='loadingDiv'> </div>
+<div class="section noTableau">
+		<div class="tableauContainer ">
+			 <h4 class="section-heading centre">Welcome to the Planefinder Web Data Connector for Tableau</h4>
+			 <p class="centre"> <img src="http://data.theinformationlab.co.uk/images/planefinder.png" alt="Planefinder" style="width:450px;height:100px;"> </p>
+			 <p class="section-description centre">Please open this web data connector in Tableau version 9.2 or greater.<br/><a href="http://www.tableausoftware.com/partner-trial?id=19124">Click here to download a trial</a></p>
+			 <p class="section-logo centre"><a href="http://www.theinformationlab.co.uk"><img src="http://data.theinformationlab.co.uk/images/logo.png" alt="The Information Lab" style="width:188px;height:75px;"></a></p>
+		</div>
+</div>
+ <div class="section welcome">
+ 		 <div class="tableauContainer ">
+ 				<h4 class="section-heading centre">Welcome to the Planefinder Web Data Connector for Tableau</h4>
+ 				<p class="centre"> <img src="http://data.theinformationlab.co.uk/images/planefinder.png" alt="Planefinder" style="width:450px;height:100px;"> </p>
+				<p class="section-description centre">Click below to download the latest aircraft positions around the world. If you want to build up a dataset over time do an incremental extract.</br><a class='button button-primary button-margin' id='letsgo'>Lets go!</a></p>
+ 				<p class="section-logo centre"><a href="http://www.theinformationlab.co.uk"><img src="http://data.theinformationlab.co.uk/images/logo.png" alt="The Information Lab" style="width:188px;height:75px;"></a></p>
+ 		 </div>
+ </div>
+ </div>
+</div>
+
+ <script src="http://data.theinformationlab.co.uk/js/bootstrap.min.js"></script>
+ <script src="http://data.theinformationlab.co.uk/js/jquery.nanoscroller.min.js"></script>
+ <script src="http://data.theinformationlab.co.uk/js/yay.min.js"></script>
+
+</body>
+</html>
