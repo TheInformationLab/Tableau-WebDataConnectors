@@ -3,3 +3,4 @@
 /phantomScript.js
 /node_modules/*
 /public/*.php
+public/deployment-config.json
