@@ -11,3 +11,5 @@ body {background: url(labs_clear.png) bottom left no-repeat fixed;
 .centre { text-align:center;}
 
 .button-margin { margin-top:30px;}
+
+.progress { height: 30px }
