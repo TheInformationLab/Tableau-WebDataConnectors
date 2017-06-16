@@ -87,7 +87,7 @@ page.open("https://myaccount.tableau.com/", function (status) {
                page.switchToChildFrame(0);
                var curPage = page.url;
                return curPage.indexOf('home/home.jsp') > -1 && page.evaluate(function() {
-                return document.getElementsByClassName('management').length > 0 || document.getElementsByClassName('cp_home_box').length > 0;
+                return (document.getElementsByClassName('management') && document.getElementsByClassName('management').length > 0) || (document.getElementsByClassName('cp_home_box') &&  document.getElementsByClassName('cp_home_box').length > 0);
                  });
              }, function() {
                setTimeout(function() {
