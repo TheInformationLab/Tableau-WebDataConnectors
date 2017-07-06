@@ -87,6 +87,46 @@ app.use('/api/getkeys', function(req, res) {
   });
 });
 
+app.use('/convo/getcookies', function(req, res) {
+  var creds = req.body;
+  var program = phantomjs.exec('phantomConvo.js', creds.username, creds.password, function(error, stdout, stderr) {
+    stderr & console.error(stderr);
+    cb(error);
+  });
+  var cookieString = "";
+  var cookies = {};
+
+  program.stdout.on('data', function(data) {
+    var buff = new Buffer(data);
+    var outputStr = buff.toString('utf8');
+    if (outputStr.indexOf('}{') > -1) {
+      outputStr = '[' + outputStr.replace(/}{/g,'},{') + ']';
+    } else {
+      outputStr = '[' + outputStr + ']';
+    }
+    console.log(outputStr);
+    var outputs = JSON.parse(outputStr);
+    for (var i = 0; i < outputs.length; i++) {
+      var output = outputs[i];
+      if (output.action == "Cookie") {
+        cookies = output.cookie;
+      } else if (output.action == "Complete") {
+        console.log("*** COOKIES RECIEVED ***");
+        res.send(JSON.stringify(cookies));
+      } else if (output.action == "URL Change") {
+        console.log("New URL: " + output.url);
+      } else {
+        console.log("*** UNKNOWN MESSAGE ***");
+        console.log(output);
+      }
+    }
+  });
+  program.stderr.pipe(process.stderr)
+  program.on('exit', code => {
+    console.log("Phantom Out");
+  });
+});
+
 app.use('/api/getcsv', function(req, res) {
   // The options argument is optional so you can omit it
   var conn = req.body;
